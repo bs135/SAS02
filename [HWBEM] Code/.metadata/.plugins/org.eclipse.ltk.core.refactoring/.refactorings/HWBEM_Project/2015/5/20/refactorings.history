@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;HWBEM_Project/Control&apos; to &apos;Ultilities&apos;" description="Rename resource &apos;Control&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Control" name="Ultilities" stamp="1431335739292" updateReferences="true"/>
+</session>
