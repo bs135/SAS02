@@ -20,7 +20,7 @@
 
 // TODO: insert other include files here
 #include "main.h"
-#include "ControlLCD.h"
+#include "LCD.h"
 #include "VTimer.h"
 #include "LED.h"
 #include "Motor.h"
@@ -71,7 +71,6 @@ void Board_Init(){
  */
 int main(void)
 {
-	uint16_t number = 0;
 	uint16_t dataADC;
 	SystemCoreClockUpdate();
 	Board_Init();

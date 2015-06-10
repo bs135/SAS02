@@ -1,0 +1,13 @@
+/*
+ * EEPROM.c
+ *
+ *  Created on: Jun 11, 2015
+ *      Author: XuanHung
+ */
+
+#include "EEPROM.h"
+
+void EEPROM_InitController(){
+
+
+}

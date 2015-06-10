@@ -1,0 +1,13 @@
+/*
+ * EEPROM.h
+ *
+ *  Created on: Jun 11, 2015
+ *      Author: XuanHung
+ */
+
+#ifndef INC_EEPROM_H_
+#define INC_EEPROM_H_
+
+#include "chip.h"
+
+#endif /* INC_EEPROM_H_ */

@@ -1,0 +1,18 @@
+/*
+ * Input.c
+ *
+ *  Created on: Jun 11, 2015
+ *      Author: XuanHung
+ */
+
+#include "Input.h"
+
+void Input_InitController(){
+	/* Configure GPIO pin as input pin */
+	Chip_GPIO_SetPinDIRInput(LPC_GPIO_BUTTON, BUTTON_PORT, BUTTON_UP_PIN);
+	Chip_GPIO_SetPinDIRInput(LPC_GPIO_BUTTON, BUTTON_PORT, BUTTON_DOWN_PIN);
+
+	Chip_GPIO_SetPinDIRInput(LPC_GPIO_SWITCH, SWITCH_PORT, SWITCH_PIN);
+
+
+}

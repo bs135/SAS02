@@ -3,6 +3,7 @@
 	<name>lpc_chip_11cxx_lib</name>
 	<comment></comment>
 	<projects>
+		<project>HWBEM_Project</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

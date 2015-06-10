@@ -10,4 +10,6 @@
 
 #include "chip.h"
 
+void ADC_InitController(void);
+
 #endif /* INC_ADC_H_ */

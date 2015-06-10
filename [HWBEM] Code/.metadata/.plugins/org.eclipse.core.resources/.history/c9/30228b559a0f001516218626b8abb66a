@@ -1,0 +1,25 @@
+/*
+ * EEPROM.h
+ *
+ *  Created on: Jun 11, 2015
+ *      Author: XuanHung
+ */
+
+#ifndef INC_EEPROM_H_
+#define INC_EEPROM_H_
+
+#include "chip.h"
+
+#define EEPROM_I2C          I2C0
+
+#define I2C_SPEED_100KHZ         100000
+#define SPEED_400KHZ         400000
+#define I2C_DEFAULT_SPEED    SPEED_100KHZ
+#define I2C_FASTPLUS_BIT     0
+
+#if (I2C_DEFAULT_SPEED > SPEED_400KHZ)
+#undef  I2C_FASTPLUS_BIT
+#define I2C_FASTPLUS_BIT IOCON_FASTI2C_EN
+#endif
+
+#endif /* INC_EEPROM_H_ */
