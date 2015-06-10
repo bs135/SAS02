@@ -184,27 +184,6 @@
 						<entry kind="macro" name="__REDLIB__" value=""/>
 						<entry kind="macro" name="__USE_LPCOPEN" value=""/>
 					</resource>
-					<resource project-relative-path="src/HWBEM_Project.c">
-						<entry kind="includePath" name="/${ProjName}/inc">
-							<flag value="VALUE_WORKSPACE_PATH"/>
-						</entry>
-						<entry kind="includePath" name="/${ProjName}/Control/inc">
-							<flag value="VALUE_WORKSPACE_PATH"/>
-						</entry>
-						<entry kind="includePath" name="/${ProjName}/Debug">
-							<flag value="VALUE_WORKSPACE_PATH"/>
-						</entry>
-						<entry kind="includePath" name="/lpc_chip_11cxx_lib/inc">
-							<flag value="VALUE_WORKSPACE_PATH|RESOLVED"/>
-						</entry>
-						<entry kind="macro" name="CORE_M0" value=""/>
-						<entry kind="macro" name="DEBUG" value=""/>
-						<entry kind="macro" name="NO_BOARD_LIB" value=""/>
-						<entry kind="macro" name="__CODE_RED" value=""/>
-						<entry kind="macro" name="__LPC11XX__" value=""/>
-						<entry kind="macro" name="__REDLIB__" value=""/>
-						<entry kind="macro" name="__USE_LPCOPEN" value=""/>
-					</resource>
 					<resource project-relative-path="Ultilities/src/UARTDebug.c">
 						<entry kind="includePath" name="/${ProjName}/inc">
 							<flag value="VALUE_WORKSPACE_PATH"/>
@@ -232,6 +211,27 @@
 						</entry>
 						<entry kind="includePath" name="/${ProjName}/Ultilities/inc">
 							<flag value="VALUE_WORKSPACE_PATH"/>
+						</entry>
+						<entry kind="macro" name="CORE_M0" value=""/>
+						<entry kind="macro" name="DEBUG" value=""/>
+						<entry kind="macro" name="NO_BOARD_LIB" value=""/>
+						<entry kind="macro" name="__CODE_RED" value=""/>
+						<entry kind="macro" name="__LPC11XX__" value=""/>
+						<entry kind="macro" name="__REDLIB__" value=""/>
+						<entry kind="macro" name="__USE_LPCOPEN" value=""/>
+					</resource>
+					<resource project-relative-path="src/HWBEM_Project.c">
+						<entry kind="includePath" name="/${ProjName}/inc">
+							<flag value="VALUE_WORKSPACE_PATH"/>
+						</entry>
+						<entry kind="includePath" name="/${ProjName}/Control/inc">
+							<flag value="VALUE_WORKSPACE_PATH"/>
+						</entry>
+						<entry kind="includePath" name="/${ProjName}/Debug">
+							<flag value="VALUE_WORKSPACE_PATH"/>
+						</entry>
+						<entry kind="includePath" name="/lpc_chip_11cxx_lib/inc">
+							<flag value="VALUE_WORKSPACE_PATH|RESOLVED"/>
 						</entry>
 						<entry kind="macro" name="CORE_M0" value=""/>
 						<entry kind="macro" name="DEBUG" value=""/>
