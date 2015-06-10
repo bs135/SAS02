@@ -30,7 +30,7 @@ History/
 *.bak
 *.Vishwas
 ViewCode/
-
+.metadata/
 
 ######################### Visual Studio
 # User-specific files
