@@ -31,6 +31,9 @@ History/
 *.Vishwas
 ViewCode/
 /.metadata/*
+/.metadata/*.*
+*.metadata/*
+[.]metadata/*
 
 ######################### Visual Studio
 # User-specific files
