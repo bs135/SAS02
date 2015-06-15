@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">&#x0A;<refactoring comment="Rename resource &apos;HWBEM_Project/Ultilities/inc/ControlLCD.h&apos; to &apos;LCD.h&apos;" description="Rename resource &apos;ControlLCD.h&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Ultilities/inc/ControlLCD.h" name="LCD.h" stamp="1433958828814" updateReferences="true"/>&#x0A;<refactoring comment="Rename resource &apos;HWBEM_Project/Ultilities/src/ControlLCD.c&apos; to &apos;LCD.c&apos;" description="Rename resource &apos;ControlLCD.c&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Ultilities/src/ControlLCD.c" name="LCD.c" stamp="1433958835477" updateReferences="true"/>
-</session>

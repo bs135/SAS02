@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<cHelpSettings>
-<project name="HWBEM_Project">
-<provider id="org.eclipse.cdt.ui.provider1"/>
-</project>
-<project name="SAS02">
-<provider id="org.eclipse.cdt.ui.provider1"/>
-</project>
-</cHelpSettings>
