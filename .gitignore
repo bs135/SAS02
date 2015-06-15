@@ -30,9 +30,11 @@ History/
 *.bak
 *.Vishwas
 ViewCode/
+.metadata/
 
-.*
-!/.gitignore
+
+#.*
+#!/.gitignore
 
 ######################### Visual Studio
 # User-specific files
