@@ -36,13 +36,14 @@
 #define LM_DOWN_PIN			5
 
 #define LPC_GPIO_DIPSW      LPC_GPIO_PORT3_BASE
+
 #define DIPSW_PORT			3
 #define DIPSW_1_PIN			0
 #define DIPSW_2_PIN			1
 #define DIPSW_3_PIN			2
 #define DIPSW_4_PIN			3
-//#define DIPSW_5_PIN			4
-//#define DIPSW_6_PIN			5
+#define DIPSW_5_PIN			4
+#define DIPSW_6_PIN			5
 
 void Input_InitController(void);
 
