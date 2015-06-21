@@ -12,21 +12,21 @@ PIN E		1:ENABLE
 0:DISABLE
 PIN E tu 1-> 0: Truyen data/command xuong LCD
 */
-#define LPC_GPIO_LCD_CTRL   LPC_GPIO_PORT2_BASE
-#define LCD_CTRL_PORT		0
+#define LPC_GPIO_LCD_CTRL   LPC_GPIO
+#define LCD_CTRL_PORT		2
 #define LCD_RS_PIN			8
 #define LCD_RD_PIN			9
 #define LCD_EN_PIN			10
 
-#define LPC_GPIO_LCD_DATA   LPC_GPIO_PORT2_BASE
-#define LCD_DATA_PORT		0
+#define LPC_GPIO_LCD_DATA   LPC_GPIO
+#define LCD_DATA_PORT		2
 #define LCD_D4_PIN			4
 #define LCD_D5_PIN			5
 #define LCD_D6_PIN			6
 #define LCD_D7_PIN			7
 
-#define LPC_GPIO_LCD_BKL   	LPC_GPIO_PORT1_BASE
-#define LCD_BKL_PORT		0
+#define LPC_GPIO_LCD_BKL   	LPC_GPIO
+#define LCD_BKL_PORT		1
 #define LCD_BKL_PIN			9
 
 #define READ_MODE			1

@@ -10,14 +10,14 @@
 
 #include "chip.h"
 
-#define LPC_GPIO_MOTOR    	LPC_GPIO_PORT0_BASE
+#define LPC_GPIO_MOTOR    	LPC_GPIO
 #define MOTOR_PORT			0
 #define MOTOR_FORWARD_PIN	8
 #define MOTOR_REVERSE_PIN	9
 
 
-#define LPC_GPIO_FAN     	LPC_GPIO_PORT1_BASE
-#define FAN_PORT			0
+#define LPC_GPIO_FAN     	LPC_GPIO
+#define FAN_PORT			1
 #define FAN_PIN				10
 
 void Motor_InitController();

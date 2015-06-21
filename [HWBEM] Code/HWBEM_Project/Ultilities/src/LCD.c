@@ -3,9 +3,9 @@
 
 void LCD_InitController(){
 	/* Set all command pins for LCD as outputs    */
-	Chip_GPIO_SetPinDIROutput(LPC_GPIO_LCD_CTRL,LCD_CTRL_PORT,LCD_RS_PIN);
-	Chip_GPIO_SetPinDIROutput(LPC_GPIO_LCD_CTRL,LCD_CTRL_PORT,LCD_RD_PIN);
-	Chip_GPIO_SetPinDIROutput(LPC_GPIO_LCD_CTRL,LCD_CTRL_PORT,LCD_EN_PIN);
+	Chip_GPIO_SetPinDIROutput(LPC_GPIO,LCD_CTRL_PORT,LCD_RS_PIN);
+	Chip_GPIO_SetPinDIROutput(LPC_GPIO,LCD_CTRL_PORT,LCD_RD_PIN);
+	Chip_GPIO_SetPinDIROutput(LPC_GPIO,LCD_CTRL_PORT,LCD_EN_PIN);
 	/* Set all data pins for LCD as outputs    */
 	LCD_SetDataPortOutput();
 	//Chip_GPIO_SetPinDIROutput(LPC_GPIO_LCD_DATA,LCD_DATA_PORT,LCD_D4_PIN);
@@ -13,7 +13,7 @@ void LCD_InitController(){
 	//Chip_GPIO_SetPinDIROutput(LPC_GPIO_LCD_DATA,LCD_DATA_PORT,LCD_D6_PIN);
 	//Chip_GPIO_SetPinDIROutput(LPC_GPIO_LCD_DATA,LCD_DATA_PORT,LCD_D7_PIN);
 	/* Set backlight pins for LCD as outputs    */
-	Chip_GPIO_SetPinDIROutput(LPC_GPIO_LCD_BKL,LCD_BKL_PORT,LCD_BKL_PIN);
+	Chip_GPIO_SetPinDIROutput(LPC_GPIO,LCD_BKL_PORT,LCD_BKL_PIN);
 	
 	LCD_EN_PIN_LOW();
 	LCD_SetWriteMode();
@@ -38,34 +38,34 @@ void LCD_InitController(){
 }
 
 void LCD_SetDataPortOutput(){
-	Chip_GPIO_SetPortDIROutput(LPC_GPIO_LCD_DATA,LCD_DATA_PORT,0x000F<<LCD_D4_PIN);
+	Chip_GPIO_SetPortDIROutput(LPC_GPIO,LCD_DATA_PORT,0x000F<<LCD_D4_PIN);
 }
 void LCD_SetDataPortInput(){
-	Chip_GPIO_SetPortDIRInput(LPC_GPIO_LCD_DATA,LCD_DATA_PORT,0x000F<<LCD_D4_PIN);
+	Chip_GPIO_SetPortDIRInput(LPC_GPIO,LCD_DATA_PORT,0x000F<<LCD_D4_PIN);
 }
 void LCD_SetDataMode(){
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_LCD_CTRL,LCD_CTRL_PORT,LCD_RS_PIN);
+	Chip_GPIO_SetPinOutHigh(LPC_GPIO,LCD_CTRL_PORT,LCD_RS_PIN);
 }
 void LCD_SetCommandMode(){
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_LCD_CTRL,LCD_CTRL_PORT,LCD_RS_PIN);
+	Chip_GPIO_SetPinOutLow(LPC_GPIO,LCD_CTRL_PORT,LCD_RS_PIN);
 }
 void LCD_SetReadMode(){
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_LCD_CTRL,LCD_CTRL_PORT,LCD_RD_PIN);
+	Chip_GPIO_SetPinOutHigh(LPC_GPIO,LCD_CTRL_PORT,LCD_RD_PIN);
 }
 void LCD_SetWriteMode(){
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_LCD_CTRL,LCD_CTRL_PORT,LCD_RD_PIN);
+	Chip_GPIO_SetPinOutLow(LPC_GPIO,LCD_CTRL_PORT,LCD_RD_PIN);
 }
 void LCD_EN_PIN_LOW(){
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_LCD_CTRL,LCD_CTRL_PORT,LCD_EN_PIN);
+	Chip_GPIO_SetPinOutLow(LPC_GPIO,LCD_CTRL_PORT,LCD_EN_PIN);
 }
 void LCD_EN_PIN_HIGH(){
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_LCD_CTRL,LCD_CTRL_PORT,LCD_EN_PIN);
+	Chip_GPIO_SetPinOutHigh(LPC_GPIO,LCD_CTRL_PORT,LCD_EN_PIN);
 }
 
 void LCD_Write4Bit(uint32_t data){
 	LCD_SetWriteMode();	//keo chan RW xuong 0
-	Chip_GPIO_SetPortOutHigh(LPC_GPIO_LCD_DATA,LCD_DATA_PORT,(data&0x000F)<<LCD_D4_PIN);
-	Chip_GPIO_SetPortOutLow(LPC_GPIO_LCD_DATA,LCD_DATA_PORT,((~data)&0x000F)<<LCD_D4_PIN);
+	Chip_GPIO_SetPortOutHigh(LPC_GPIO,LCD_DATA_PORT,(data&0x000F)<<LCD_D4_PIN);
+	Chip_GPIO_SetPortOutLow(LPC_GPIO,LCD_DATA_PORT,((~data)&0x000F)<<LCD_D4_PIN);
 	LCD_EN_PIN_HIGH();		//Set chan LCD_EN_PIN len 1
 	DelayMs(1);
 	LCD_EN_PIN_LOW();		//Keo chan LCD_EN_PIN xuong 0
@@ -93,11 +93,11 @@ uint8_t LCD_ReadStatus(){
 	LCD_SetReadMode();	
 	DelayMs(1);// x :4bit
 	LCD_EN_PIN_HIGH();
-	status  = (Chip_GPIO_ReadValue(LPC_GPIO_LCD_DATA,LCD_DATA_PORT)&(0x000F<<LCD_D4_PIN));
+	status  = (Chip_GPIO_ReadValue(LPC_GPIO,LCD_DATA_PORT)&(0x000F<<LCD_D4_PIN));
 	status = status<<4;
 	LCD_EN_PIN_LOW();
 	LCD_EN_PIN_HIGH();
-	status |= (Chip_GPIO_ReadValue(LPC_GPIO_LCD_DATA,LCD_DATA_PORT)&(0x000F<<LCD_D4_PIN));
+	status |= (Chip_GPIO_ReadValue(LPC_GPIO,LCD_DATA_PORT)&(0x000F<<LCD_D4_PIN));
 	LCD_EN_PIN_LOW();
 	LCD_SetDataPortOutput();
 	return (status);

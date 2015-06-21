@@ -10,22 +10,18 @@
 
 #include "chip.h"
 
-#define LPC_GPIO_USER_LED   LPC_GPIO_PORT0_BASE
 #define USER_LED_PORT		0
 #define USER_LED_PIN		3
 
-#define LPC_GPIO_DIRSW_LED	LPC_GPIO_PORT2_BASE
-#define DIRSW_LED_PORT		0
+#define DIRSW_LED_PORT		2
 #define UP_SW_LED_PIN		0
 #define DW_SW_LED_PIN		1
 
-#define LPC_GPIO_SEN_LED    LPC_GPIO_PORT2_BASE
-#define SEN_LED_PORT		0
+#define SEN_LED_PORT		2
 #define SEN1_LED_PIN		2
 #define SEN2_LED_PIN		3
 
-#define LPC_GPIO_LM_LED     LPC_GPIO_PORT1_BASE
-#define LM_LED_PORT			0
+#define LM_LED_PORT			1
 #define UP_LM_LED_PIN		8
 #define DW_LM_LED_PIN		11
 
