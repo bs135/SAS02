@@ -62,9 +62,9 @@ void Board_Init(){
 	SysTick_Config(SystemCoreClock / SYSTICK_RATE);
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO,0,7);
 	VTimer_InitController();
-	//LED_InitController();
+	LED_InitController();
 	Motor_InitController();
-	//LCD_InitController();
+	LCD_InitController();
 	UART_InitController();
 	ADC_InitController();
 	Input_InitController();
@@ -80,6 +80,7 @@ int main(void)
 	SystemCoreClockUpdate();
 	Board_Init();
 	UART_SendString("SAS02\r\n\t");
+	LcdPrintString(0,0,"HWBEMV1.0");
 	while (1) {
 		//__WFI();
 		//Chip_GPIO_SetPinToggle(LPC_GPIO_PORT2_BASE,0,7);
