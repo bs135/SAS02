@@ -60,7 +60,6 @@ void TIMER32_0_IRQHandler(void)
 
 void Board_Init(){
 	SysTick_Config(SystemCoreClock / SYSTICK_RATE);
-	Chip_GPIO_SetPinDIROutput(LPC_GPIO,0,7);
 	VTimer_InitController();
 	LED_InitController();
 	Motor_InitController();
@@ -82,6 +81,17 @@ int main(void)
 	UART_SendString("SAS02\r\n\t");
 	LcdPrintString(0,0,"HWBEMV1.0");
 	while (1) {
+		//LED_TurnOnUPSWLED();
+		//LED_TurnOnDWSWLED();
+		FAN_TurnOn();
+		Motor_Forward();
+
+		DelayMs(2000);
+		//LED_TurnOffUPSWLED();
+		//LED_TurnOffDWSWLED();
+		FAN_TurnOff();
+		Motor_Reverse();
+		DelayMs(2000);
 		//__WFI();
 		//Chip_GPIO_SetPinToggle(LPC_GPIO_PORT2_BASE,0,7);
 		//LCD_GotoXY(0,0);
@@ -111,13 +121,13 @@ int main(void)
 
 		/* Read ADC value */
 		//Chip_ADC_ReadValue(LPC_ADC, ADC_CH1, &dataADC);
-		if (UP_Button_Pressed()){
-			Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT0_BASE,0,7);
-		}
-		else {
-			Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT0_BASE,0,7);
+		//if (UP_Button_Pressed()){
+		//	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT0_BASE,0,7);
+		//}
+		//else {
+		//	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT0_BASE,0,7);
 
-		}
+		//}
 		//DelayMs(500);
 	}
 

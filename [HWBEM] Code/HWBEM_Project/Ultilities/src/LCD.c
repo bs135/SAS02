@@ -14,7 +14,7 @@ void LCD_InitController(){
 	//Chip_GPIO_SetPinDIROutput(LPC_GPIO_LCD_DATA,LCD_DATA_PORT,LCD_D7_PIN);
 	/* Set backlight pins for LCD as outputs    */
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO,LCD_BKL_PORT,LCD_BKL_PIN);
-	
+	LCD_TurnOnBackLight();
 	LCD_EN_PIN_LOW();
 	LCD_SetWriteMode();
 	LCD_SetCommandMode();
@@ -37,6 +37,12 @@ void LCD_InitController(){
 	LCD_Clear();
 }
 
+void LCD_TurnOnBackLight(){
+	Chip_GPIO_SetPinOutLow(LPC_GPIO,LCD_BKL_PORT,LCD_BKL_PIN);
+}
+void LCD_TurnOffBackLight(){
+	Chip_GPIO_SetPinOutHigh(LPC_GPIO,LCD_BKL_PORT,LCD_BKL_PIN);
+}
 void LCD_SetDataPortOutput(){
 	Chip_GPIO_SetPortDIROutput(LPC_GPIO,LCD_DATA_PORT,0x000F<<LCD_D4_PIN);
 }

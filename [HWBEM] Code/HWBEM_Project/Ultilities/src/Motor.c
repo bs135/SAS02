@@ -14,12 +14,13 @@ void Motor_InitController(){
 }
 
 void Motor_Forward(){
-
-
+	Chip_GPIO_SetPinOutHigh(LPC_GPIO,MOTOR_PORT,MOTOR_FORWARD_PIN);
+	Chip_GPIO_SetPinOutLow(LPC_GPIO,MOTOR_PORT,MOTOR_REVERSE_PIN);
 }
 
 void Motor_Reverse(){
-
+	Chip_GPIO_SetPinOutHigh(LPC_GPIO,MOTOR_PORT,MOTOR_REVERSE_PIN);
+	Chip_GPIO_SetPinOutLow(LPC_GPIO,MOTOR_PORT,MOTOR_FORWARD_PIN);
 
 }
 

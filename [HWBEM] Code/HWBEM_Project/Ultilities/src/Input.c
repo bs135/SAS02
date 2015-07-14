@@ -6,6 +6,7 @@
  */
 
 #include "Input.h"
+#include "LED.h"
 uint8_t InputValue[4] = {0,0,0,0};
 uint8_t DipSWValue[4] = {0,0,0,0};
 uint8_t SenValue[4] = {0,0,0,0};
@@ -38,16 +39,20 @@ void Input_Service(){
 		InputValue[3] = InputValue[2];
 		InputValue[2] = InputValue[1];
 		if (( Chip_GPIO_GetPortValue(LPC_GPIO,BUTTON_PORT) & (1<<BUTTON_UP_PIN)) == 0){
+			LED_TurnOnUPSWLED();
 			InputValue[1] |= (1<<BUTTON_UP_INDEX);
 		}
 		else {
+			LED_TurnOffUPSWLED();
 			InputValue[1] &= ~(1<<BUTTON_UP_INDEX);
 		}
 
 		if (( Chip_GPIO_GetPortValue(LPC_GPIO,BUTTON_PORT) & (1<<BUTTON_DOWN_PIN)) == 0){
+			LED_TurnOnDWSWLED();
 			InputValue[1] |= (1<<BUTTON_DOWN_INDEX);
 		}
 		else {
+			LED_TurnOffDWSWLED();
 			InputValue[1] &= ~(1<<BUTTON_DOWN_INDEX);
 		}
 
@@ -59,30 +64,38 @@ void Input_Service(){
 		}
 
 		if (( Chip_GPIO_GetPortValue(LPC_GPIO,SEN1_PORT) & (1<<SEN1_PIN)) == 0){
+			LED_TurnOnSen1LED();
 			InputValue[1] |= (1<<SEN1_INDEX);
 		}
 		else {
+			LED_TurnOffSen1LED();
 			InputValue[1] &= ~(1<<SEN1_INDEX);
 		}
 
 		if (( Chip_GPIO_GetPortValue(LPC_GPIO,SEN2_PORT) & (1<<SEN2_PIN)) == 0){
+			LED_TurnOnSen2LED();
 			InputValue[1] |= (1<<SEN2_INDEX);
 		}
 		else {
+			LED_TurnOffSen2LED();
 			InputValue[1] &= ~(1<<SEN2_INDEX);
 		}
 
 		if (( Chip_GPIO_GetPortValue(LPC_GPIO,LM_UP_PORT) & (1<<LM_UP_PIN)) == 0){
+			LED_TurnOnUPLMLED();
 			InputValue[1] |= (1<<LM_UP_INDEX);
 		}
 		else {
+			LED_TurnOffUPLMLED();
 			InputValue[1] &= ~(1<<LM_UP_INDEX);
 		}
 
 		if (( Chip_GPIO_GetPortValue(LPC_GPIO,LM_DOWN_PORT) & (1<<LM_DOWN_PIN)) == 0){
+			LED_TurnOnDWLMLED();
 			InputValue[1] |= (1<<LM_DOWN_INDEX);
 		}
 		else {
+			LED_TurnOffDWLMLED();
 			InputValue[1] &= ~(1<<LM_DOWN_INDEX);
 		}
 

@@ -53,6 +53,10 @@ PIN E tu 1-> 0: Truyen data/command xuong LCD
 #define LCD_MOVERIGHT 0x04
 #define LCD_MOVELEFT 0x00
 
+
+void LCD_InitController();
+void LCD_TurnOnBackLight();
+void LCD_TurnOffBackLight();
 /******************************************************************************/
 /* LCD_4bit.c: Functions for 2 line 16 character LCD, with 4-bit interface    */
 /******************************************************************************/
@@ -64,7 +68,7 @@ void LCD_PutDigi3(uint8_t X, uint8_t Y,int num);
 void LCD_PutDigi4(uint8_t X, uint8_t Y,int num);
 void LCD_PutDigi5(uint8_t X, uint8_t Y,int num);
 void LCD_PutBinary(uint8_t X, uint8_t Y,uint16_t num);
-void LCD_InitController();
+
 void LCD_GotoXY(uint8_t x, uint8_t y);
 void LCDScrollLeft();
 void LCDScrollRight();
