@@ -27,6 +27,7 @@
 #include "UART.h"
 #include "ADC.h"
 #include "Input.h"
+#include "Application.h"
 
 // TODO: insert other definitions and declarations here
 
@@ -36,9 +37,8 @@ void SysTick_Handler(void)
 	VTimerService();
 	Input_Service();
 	if (cnt>500){
-
-		UART_SendNumber( DIPSW_GetValue());
-		UART_SendByte(13);
+		//UART_SendNumber(LM_UP_Pressed());
+		//UART_SendByte(13);
 		cnt = 0;
 	}
 	else {
@@ -54,7 +54,6 @@ void TIMER32_0_IRQHandler(void)
 {
 	if (Chip_TIMER_MatchPending(LPC_TIMER32_0, 1)) {
 		Chip_TIMER_ClearMatch(LPC_TIMER32_0, 1);
-		//Board_LED_Set(0, true);
 	}
 }
 
@@ -80,18 +79,20 @@ int main(void)
 	Board_Init();
 	UART_SendString("SAS02\r\n\t");
 	LcdPrintString(0,0,"HWBEMV1.0");
+	System_Init();
 	while (1) {
-		//LED_TurnOnUPSWLED();
-		//LED_TurnOnDWSWLED();
+		OpenGate();
+		/*LED_TurnOnUPSWLED();
+		LED_TurnOnDWSWLED();
 		FAN_TurnOn();
 		Motor_Forward();
 
-		DelayMs(2000);
-		//LED_TurnOffUPSWLED();
-		//LED_TurnOffDWSWLED();
+		DelayMs(1000);
+		LED_TurnOffUPSWLED();
+		LED_TurnOffDWSWLED();
 		FAN_TurnOff();
 		Motor_Reverse();
-		DelayMs(2000);
+		DelayMs(1000);*/
 		//__WFI();
 		//Chip_GPIO_SetPinToggle(LPC_GPIO_PORT2_BASE,0,7);
 		//LCD_GotoXY(0,0);

@@ -38,7 +38,8 @@ void Input_Service(){
 		// button and switch
 		InputValue[3] = InputValue[2];
 		InputValue[2] = InputValue[1];
-		if (( Chip_GPIO_GetPortValue(LPC_GPIO,BUTTON_PORT) & (1<<BUTTON_UP_PIN)) == 0){
+
+		if (Chip_GPIO_GetPinState(LPC_GPIO,LM_UP_PORT,BUTTON_UP_PIN) == FALSE){
 			LED_TurnOnUPSWLED();
 			InputValue[1] |= (1<<BUTTON_UP_INDEX);
 		}
@@ -47,7 +48,7 @@ void Input_Service(){
 			InputValue[1] &= ~(1<<BUTTON_UP_INDEX);
 		}
 
-		if (( Chip_GPIO_GetPortValue(LPC_GPIO,BUTTON_PORT) & (1<<BUTTON_DOWN_PIN)) == 0){
+		if (Chip_GPIO_GetPinState(LPC_GPIO,LM_UP_PORT,BUTTON_DOWN_PIN) == FALSE){
 			LED_TurnOnDWSWLED();
 			InputValue[1] |= (1<<BUTTON_DOWN_INDEX);
 		}
@@ -56,14 +57,14 @@ void Input_Service(){
 			InputValue[1] &= ~(1<<BUTTON_DOWN_INDEX);
 		}
 
-		if (( Chip_GPIO_GetPortValue(LPC_GPIO,SWITCH_PORT) & (1<<SWITCH_PIN)) == 0){
+		if (Chip_GPIO_GetPinState(LPC_GPIO,SWITCH_PORT,SWITCH_PIN) == FALSE){
 			InputValue[1] |= (1<<SWITCH_INDEX);
 		}
 		else {
 			InputValue[1] &= ~(1<<SWITCH_INDEX);
 		}
 
-		if (( Chip_GPIO_GetPortValue(LPC_GPIO,SEN1_PORT) & (1<<SEN1_PIN)) == 0){
+		if (Chip_GPIO_GetPinState(LPC_GPIO,SEN1_PORT,SEN1_PIN) == FALSE){
 			LED_TurnOnSen1LED();
 			InputValue[1] |= (1<<SEN1_INDEX);
 		}
@@ -72,7 +73,7 @@ void Input_Service(){
 			InputValue[1] &= ~(1<<SEN1_INDEX);
 		}
 
-		if (( Chip_GPIO_GetPortValue(LPC_GPIO,SEN2_PORT) & (1<<SEN2_PIN)) == 0){
+		if (Chip_GPIO_GetPinState(LPC_GPIO,SEN2_PORT,SEN2_PIN) == FALSE){
 			LED_TurnOnSen2LED();
 			InputValue[1] |= (1<<SEN2_INDEX);
 		}
@@ -81,7 +82,7 @@ void Input_Service(){
 			InputValue[1] &= ~(1<<SEN2_INDEX);
 		}
 
-		if (( Chip_GPIO_GetPortValue(LPC_GPIO,LM_UP_PORT) & (1<<LM_UP_PIN)) == 0){
+		if (Chip_GPIO_GetPinState(LPC_GPIO,LM_UP_PORT,LM_UP_PIN) == FALSE){
 			LED_TurnOnUPLMLED();
 			InputValue[1] |= (1<<LM_UP_INDEX);
 		}
@@ -90,7 +91,7 @@ void Input_Service(){
 			InputValue[1] &= ~(1<<LM_UP_INDEX);
 		}
 
-		if (( Chip_GPIO_GetPortValue(LPC_GPIO,LM_DOWN_PORT) & (1<<LM_DOWN_PIN)) == 0){
+		if (Chip_GPIO_GetPinState(LPC_GPIO,LM_UP_PORT,LM_DOWN_PIN) == FALSE){
 			LED_TurnOnDWLMLED();
 			InputValue[1] |= (1<<LM_DOWN_INDEX);
 		}
@@ -153,13 +154,13 @@ void Input_Service(){
 }
 
 uint8_t UP_Button_Pressed(){
-	if (InputValue[0] & (1<<BUTTON_UP_INDEX)){
+	if ((InputValue[0] & (1<<BUTTON_UP_INDEX)) == (1<<BUTTON_UP_INDEX)){
 		return TRUE;
 	}
 	else return FALSE;
 }
 uint8_t DOWN_Button_Pressed(){
-	if (InputValue[0] & (1<<BUTTON_DOWN_INDEX)){
+	if ((InputValue[0] & (1<<BUTTON_DOWN_INDEX)) == (1<<BUTTON_DOWN_INDEX)){
 		return TRUE;
 	}
 	else return FALSE;
@@ -171,25 +172,25 @@ uint8_t SWITCH_Pressed(){
 	else return FALSE;
 }
 uint8_t SEN1_Pressed(){
-	if (InputValue[0] & (1<<SEN1_INDEX)){
+	if ((InputValue[0] & (1<<SEN1_INDEX)) == (1<<SEN1_INDEX)){
 		return TRUE;
 	}
 	else return FALSE;
 }
 uint8_t SEN2_Pressed(){
-	if (InputValue[0] & (1<<SEN2_INDEX)){
+	if ((InputValue[0] & (1<<SEN2_INDEX)) == (1<<SEN2_INDEX)){
 		return TRUE;
 	}
 	else return FALSE;
 }
 uint8_t LM_UP_Pressed(){
-	if (InputValue[0] & (1<<LM_UP_INDEX)){
+	if ((InputValue[0] & (1<<LM_UP_INDEX)) ==  (1<<LM_UP_INDEX)){
 		return TRUE;
 	}
 	else return FALSE;
 }
 uint8_t LM_DOWN_Pressed(){
-	if (InputValue[0] & (1<<LM_DOWN_INDEX)){
+	if ((InputValue[0] & (1<<LM_DOWN_INDEX)) == (1<<LM_DOWN_INDEX)){
 		return TRUE;
 	}
 	else return FALSE;
@@ -198,3 +199,4 @@ uint8_t LM_DOWN_Pressed(){
 uint8_t DIPSW_GetValue(){
 	return DipSWValue[0];
 }
+

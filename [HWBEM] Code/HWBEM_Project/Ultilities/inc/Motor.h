@@ -23,6 +23,7 @@
 void Motor_InitController();
 void Motor_Forward();
 void Motor_Reverse();
+void Motor_Stop();
 void FAN_TurnOn();
 void FAN_TurnOff();
 

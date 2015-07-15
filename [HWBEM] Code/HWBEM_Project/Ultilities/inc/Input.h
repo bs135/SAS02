@@ -20,8 +20,8 @@
 #define SEN1_PORT			0
 #define SEN1_PIN			6
 
-#define SEN2_PORT			2
-#define SEN2_PIN			1
+#define SEN2_PORT			0
+#define SEN2_PIN			7
 
 #define LM_UP_PORT			3
 #define LM_UP_PIN			4

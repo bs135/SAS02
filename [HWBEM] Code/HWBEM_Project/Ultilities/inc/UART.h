@@ -12,7 +12,7 @@
 
 void UART_InitController();
 void UART_SendByte(uint8_t _data);
-void UART_SendString(const char *_data);
+void UART_SendString(uint8_t *_data);
 void UART_SendNumber(uint16_t _number);
 void UART_ISR(void);
 uint8_t UART_ReceiveByte();
