@@ -81,7 +81,8 @@ int main(void)
 	LcdPrintString(0,0,"HWBEMV1.0");
 	System_Init();
 	while (1) {
-		OpenGate();
+		//OpenGate();
+		CloseGate();
 		/*LED_TurnOnUPSWLED();
 		LED_TurnOnDWSWLED();
 		FAN_TurnOn();

@@ -39,7 +39,7 @@ void Input_Service(){
 		InputValue[3] = InputValue[2];
 		InputValue[2] = InputValue[1];
 
-		if (Chip_GPIO_GetPinState(LPC_GPIO,LM_UP_PORT,BUTTON_UP_PIN) == FALSE){
+		if (Chip_GPIO_GetPinState(LPC_GPIO,BUTTON_PORT,BUTTON_UP_PIN) == FALSE){
 			LED_TurnOnUPSWLED();
 			InputValue[1] |= (1<<BUTTON_UP_INDEX);
 		}
@@ -48,7 +48,7 @@ void Input_Service(){
 			InputValue[1] &= ~(1<<BUTTON_UP_INDEX);
 		}
 
-		if (Chip_GPIO_GetPinState(LPC_GPIO,LM_UP_PORT,BUTTON_DOWN_PIN) == FALSE){
+		if (Chip_GPIO_GetPinState(LPC_GPIO,BUTTON_PORT,BUTTON_DOWN_PIN) == FALSE){
 			LED_TurnOnDWSWLED();
 			InputValue[1] |= (1<<BUTTON_DOWN_INDEX);
 		}
@@ -91,7 +91,7 @@ void Input_Service(){
 			InputValue[1] &= ~(1<<LM_UP_INDEX);
 		}
 
-		if (Chip_GPIO_GetPinState(LPC_GPIO,LM_UP_PORT,LM_DOWN_PIN) == FALSE){
+		if (Chip_GPIO_GetPinState(LPC_GPIO,LM_DOWN_PORT,LM_DOWN_PIN) == FALSE){
 			LED_TurnOnDWLMLED();
 			InputValue[1] |= (1<<LM_DOWN_INDEX);
 		}

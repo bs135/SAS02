@@ -27,9 +27,9 @@ void Motor_Stop(){
 }
 
 void FAN_TurnOn(){
-	Chip_GPIO_SetPinOutLow(LPC_GPIO,FAN_PORT,FAN_PIN);
+	Chip_GPIO_SetPinOutHigh(LPC_GPIO,FAN_PORT,FAN_PIN);
 }
 
 void FAN_TurnOff(){
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO,FAN_PORT,FAN_PIN);
+	Chip_GPIO_SetPinOutLow(LPC_GPIO,FAN_PORT,FAN_PIN);
 }

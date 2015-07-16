@@ -57,6 +57,7 @@
 #define DIPSW5_INDEX		4
 #define DIPSW6_INDEX		5
 
+#define DIPSW23_MASK		0x06
 
 void Input_InitController(void);
 
