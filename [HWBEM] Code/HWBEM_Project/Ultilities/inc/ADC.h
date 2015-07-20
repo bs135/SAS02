@@ -11,5 +11,6 @@
 #include "chip.h"
 
 void ADC_InitController(void);
-
+uint16_t ADC_GetValue(void);
+uint16_t GetCurent();
 #endif /* INC_ADC_H_ */

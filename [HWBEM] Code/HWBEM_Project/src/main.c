@@ -38,8 +38,8 @@ void SysTick_Handler(void)
 	Input_Service();
 	IncreaseCounterTimer();
 	if (cnt>500){
-		//UART_SendNumber(LM_UP_Pressed());
-		//UART_SendByte(13);
+		UART_SendNumber(GetCurent());
+		UART_SendByte(13);
 		cnt = 0;
 	}
 	else {
@@ -51,13 +51,14 @@ void SysTick_Handler(void)
  * @brief	Handle interrupt from 32-bit timer
  * @return	Nothing
  */
+/*
 void TIMER32_0_IRQHandler(void)
 {
 	if (Chip_TIMER_MatchPending(LPC_TIMER32_0, 1)) {
 		Chip_TIMER_ClearMatch(LPC_TIMER32_0, 1);
 	}
 }
-
+*/
 void Board_Init(){
 
 	SysTick_Config(SystemCoreClock / SYSTICK_RATE);
@@ -80,9 +81,10 @@ int main(void)
 	Board_Init();
 	UART_SendString("SAS02\r\n\t");
 	LcdPrintString(0,0,"HWBEMV1.0");
-	System_Init();
+	//System_Init();
+	Motor_Forward();
 	while (1) {
-		System_Running();
+	//	System_Running();
 		//OpenGate();
 		//CloseGate();
 		/*LED_TurnOnUPSWLED();
