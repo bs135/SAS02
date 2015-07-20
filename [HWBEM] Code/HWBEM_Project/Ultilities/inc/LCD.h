@@ -79,6 +79,7 @@ void LCD_GotoXY(uint8_t  sx,uint8_t sy );
 void LCD_PrintChar (uint8_t row, uint8_t column, uint8_t val);
 void LCD_PrintNumber (uint8_t x, uint8_t y, int number, uint8_t quantity);
 void LCD_PrintString (uint8_t x, uint8_t y, char * ptr);
+void LCD_PrintTime(uint8_t column, uint8_t row,uint32_t time);
 void LCD_Delay(uint32_t cnt);
 
 void LCD_SetDataPortOutput();

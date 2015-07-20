@@ -8,7 +8,7 @@ volatile uint32_t timerperiod[NUMBER_OF_VIR_TIMER];
 
 void VTimer_InitController(void)
 {
-	unsigned char i = 0;
+	uint8_t i = 0;
 	for(i = 0; i< NUMBER_OF_VIR_TIMER; i++)
 	{
 		timerperiod[i] = 0;
@@ -21,7 +21,7 @@ void VTimer_InitController(void)
  *				- 1 : Fired
  *				- 0 : Not Fired
  *********************************************************************/
-unsigned char VTimerIsFired(unsigned char TimerId)
+uint8_t VTimerIsFired(uint8_t TimerId)
 {	
 	if (timerperiod[TimerId] == 1)
 		return 1;
@@ -36,7 +36,7 @@ unsigned char VTimerIsFired(unsigned char TimerId)
  *********************************************************************/
 void VTimerService(void)
 {
-	unsigned char i = 0;
+	uint8_t i = 0;
 	for(i = 0; i< NUMBER_OF_VIR_TIMER; i++)
 	{
 		if (timerperiod[i] >1 )
@@ -50,7 +50,7 @@ void VTimerService(void)
  * @return 			- 0 : FAIL
  *					- 1 : SUCCESS
  *********************************************************************/
-unsigned char VTimerSet(uint8_t timerId,uint32_t period)
+uint8_t VTimerSet(uint8_t timerId,uint32_t period)
 {	
 	timerperiod[timerId] = period+1;
 	return 1;
@@ -61,9 +61,9 @@ unsigned char VTimerSet(uint8_t timerId,uint32_t period)
  * @warning		You have only a NUMBER_OF_VIR_TIMER
  * @return 		ID of a Free Virtual Timer
  *********************************************************************/
-unsigned char VTimerGetID()
+uint8_t VTimerGetID()
 {
-	unsigned char i = 1;
+	uint8_t i = 1;
 	for(i = 1; i< NUMBER_OF_VIR_TIMER; i++)
 	{
 		if (timerperiod[i] == 0){
@@ -80,9 +80,14 @@ unsigned char VTimerGetID()
  				don't you it anymore
  * @return 		None
  *********************************************************************/
-void VTimerRelease(unsigned char timerId)
+void VTimerRelease(uint8_t timerId)
 {
 	timerperiod[timerId] = 0;
+}
+
+uint32_t VTimerGetTime(uint8_t timerId){
+	return timerperiod[timerId];
+
 }
 
 void DelayMs(uint16_t period)

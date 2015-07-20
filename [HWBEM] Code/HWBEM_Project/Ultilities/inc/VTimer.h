@@ -15,6 +15,7 @@ void VTimerService();
 unsigned char VTimerSet(uint8_t timerId,uint32_t period);
 unsigned char VTimerGetID();
 void VTimerRelease(unsigned char timerId);
+uint32_t VTimerGetTime(uint8_t timerId);
 void DelayMs(uint16_t period);
 
 #endif

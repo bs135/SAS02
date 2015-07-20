@@ -18,4 +18,9 @@ void System_Running();
 void OpenGate();
 void CloseGate();
 
+
+void IncreaseCounterTimer();
+void ResetCounterTimer();
+uint32_t GetCounterTimer();
+
 #endif /* INC_APPLICATION_H_ */

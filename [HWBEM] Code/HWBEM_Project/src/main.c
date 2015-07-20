@@ -36,6 +36,7 @@ void SysTick_Handler(void)
 {
 	VTimerService();
 	Input_Service();
+	IncreaseCounterTimer();
 	if (cnt>500){
 		//UART_SendNumber(LM_UP_Pressed());
 		//UART_SendByte(13);
@@ -58,6 +59,7 @@ void TIMER32_0_IRQHandler(void)
 }
 
 void Board_Init(){
+
 	SysTick_Config(SystemCoreClock / SYSTICK_RATE);
 	VTimer_InitController();
 	LED_InitController();
@@ -74,15 +76,15 @@ void Board_Init(){
  */
 int main(void)
 {
-	uint16_t dataADC;
 	SystemCoreClockUpdate();
 	Board_Init();
 	UART_SendString("SAS02\r\n\t");
 	LcdPrintString(0,0,"HWBEMV1.0");
 	System_Init();
 	while (1) {
+		System_Running();
 		//OpenGate();
-		CloseGate();
+		//CloseGate();
 		/*LED_TurnOnUPSWLED();
 		LED_TurnOnDWSWLED();
 		FAN_TurnOn();

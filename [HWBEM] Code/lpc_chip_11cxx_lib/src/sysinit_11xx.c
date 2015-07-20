@@ -52,7 +52,7 @@ void Chip_SystemInit(void)
 {
 	/* IRC should be powered up */
 	Chip_SYSCTL_PowerUp(SYSCTL_POWERDOWN_IRC_PD);
-	Chip_SYSCTL_PowerUp(SYSCTL_POWERDOWN_IRCOUT_PD);
+	//Chip_SYSCTL_PowerUp(SYSCTL_POWERDOWN_IRCOUT_PD);
 
 	/* Set system PLL input to main oscillator */
 	Chip_Clock_SetSystemPLLSource(SYSCTL_PLLCLKSRC_IRC);
@@ -81,6 +81,7 @@ void Chip_SystemInit(void)
 	/* Set main clock source to the system PLL. This will drive 48MHz
 	   for the main clock and 48MHz for the system clock */
 	Chip_Clock_SetMainClockSource(SYSCTL_MAINCLKSRC_PLLOUT);
+	//Chip_Clock_SetMainClockSource(SYSCTL_MAINCLKSRC_IRC);
 
 	/* Enable IOCON clock */
 	Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_IOCON);

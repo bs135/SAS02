@@ -234,27 +234,6 @@ void LcdPutDigi5(uint8_t X, uint8_t Y,int number){
 }
 
 /*********************************************************************//**
- * @brief 		Goto coordinate cursor on Digit LCD, and write a sixten digit binary number
- * @param[in] 	Column , row and number value, should be:
- * 				- Column : 0 -> 15
- * 				- Row	: 0 -> 1
- *				- number is an unsigned integer number
- * @return 		None
- ***********************************************************************/
-void LcdPutBinary(uint8_t X, uint8_t Y,uint16_t number){
-	LCD_GotoXY(X, Y);
-	uint16_t tmp = 0x8000;
-	while(tmp != 0){
-		if((number & tmp) == 0){
-			LcdPutChar('0');
-		} else {
-			LcdPutChar('1');
-		}
-		tmp = tmp>>1;
-	}
-}
-
-/*********************************************************************//**
  * @brief 		Goto coordinate cursor on Digit LCD, and write a byte
  * @param[in] 	Column , row and number value, should be:
  * 				- Column : 0 -> 15
@@ -264,12 +243,7 @@ void LcdPutBinary(uint8_t X, uint8_t Y,uint16_t number){
  ***********************************************************************/
 void LcdPrintChar (uint8_t column, uint8_t row, uint8_t val)
 {
-	uint8_t x1,y1;
-	x1 = column % 16;
-	y1 = row % 2;	
-	DelayMs(1);
-	LCD_GotoXY(x1, y1);
-	DelayMs(1);
+	LCD_GotoXY(column, row);
 	LcdPutChar(val);
 }
 
@@ -281,22 +255,33 @@ void LcdPrintChar (uint8_t column, uint8_t row, uint8_t val)
  *				- String of character
  * @return 		None
  ***********************************************************************/
-void LcdPrintString (uint8_t x, uint8_t y, char * ptr)
+void LcdPrintString (uint8_t column, uint8_t row, char * ptr)
 {
-	uint8_t row, column;
-	column = x % 16;
-	row = y % 2;	
-	DelayMs(1);
 	LCD_GotoXY(column,row);
-	DelayMs(1);
 	while( *ptr != 0 ) 
 	{
 		LcdPutChar( *ptr );
-		DelayMs(1);
 		ptr ++;
 	}
 }
 
+void LCD_PrintTime(uint8_t column, uint8_t row,uint32_t time){
+	LCD_GotoXY(column,row);
+	if (time >= 10000){
+		LcdPutChar(time/10000 + '0');
+		LcdPutChar(((time/1000)%10) + '0');
+		LcdPutChar('.');
+		LcdPutChar(((time/100)%10) + '0');
+		LcdPutChar('S');
+	}
+	else {
+		LcdPutChar(time/1000 + '0');
+		LcdPutChar('.');
+		LcdPutChar(((time/100)%10) + '0');
+		LcdPutChar(((time/10)%10) + '0');
+		LcdPutChar('S');
+	}
+}
 /*********************************************************************//**
  * @brief 		Goto coordinate cursor on Digit LCD, and write a limit quantity digits number 
  * @param[in] 	Column , row and number , quantity value,should be:
