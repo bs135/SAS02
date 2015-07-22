@@ -108,9 +108,11 @@ void Input_Service(){
 		DipSWValue[3] = DipSWValue[2];
 		DipSWValue[2] = DipSWValue[1];
 		if (( Chip_GPIO_GetPortValue(LPC_GPIO,DIPSW_1_PORT) & (1<<DIPSW_1_PIN)) == 0){
+			//LcdPrintString(11,1,"sNC");
 			DipSWValue[1] |= (1<<DIPSW1_INDEX);
 		}
 		else {
+			//LcdPrintString(11,1,"sNO");
 			DipSWValue[1] &= ~(1<<DIPSW1_INDEX);
 		}
 		if (( Chip_GPIO_GetPortValue(LPC_GPIO,DIPSW_2_PORT) & (1<<DIPSW_2_PIN)) == 0){

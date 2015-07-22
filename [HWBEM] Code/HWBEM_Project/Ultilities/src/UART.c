@@ -47,8 +47,25 @@ void UART_SendString(uint8_t *_data){
 	}
 }
 
-void UART_SendNumber(uint16_t _number){
-	if (_number >= 10000) { 	// 5 char
+void UART_SendNumber(uint32_t _number){
+	if (_number >= 1000000) { 	// 7 char
+			UART_SendByte((_number/ 1000000) + '0' );
+			UART_SendByte(((_number/100000) %10) + '0' );
+			UART_SendByte(((_number/10000) %10) + '0' );
+			UART_SendByte(((_number/1000) % 10 )+ '0' );
+			UART_SendByte(((_number/100) % 10 )+ '0' );
+			UART_SendByte(((_number/10) % 10 )+ '0' );
+			UART_SendByte((_number % 10 )+ '0' );
+		}
+	else if (_number >= 100000) { 	// 6 char
+		UART_SendByte((_number/100000) + '0' );
+		UART_SendByte(((_number/10000) %10) + '0' );
+		UART_SendByte(((_number/1000) % 10 )+ '0' );
+		UART_SendByte(((_number/100) % 10 )+ '0' );
+		UART_SendByte(((_number/10) % 10 )+ '0' );
+		UART_SendByte((_number % 10 )+ '0' );
+	}
+	else if (_number >= 10000) { 	// 5 char
 		UART_SendByte((_number/10000) + '0' );
 		UART_SendByte(((_number/1000) % 10 )+ '0' );
 		UART_SendByte(((_number/100) % 10 )+ '0' );

@@ -6,11 +6,14 @@
  */
 
 #include "Motor.h"
-
+uint8_t VTimer_FanOffID;
+uint8_t FanOffFlag = 0;
 void Motor_InitController(){
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO,MOTOR_PORT,MOTOR_FORWARD_PIN);
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO,MOTOR_PORT,MOTOR_REVERSE_PIN);
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO,FAN_PORT,FAN_PIN);
+	VTimer_FanOffID = VTimerGetID();
+	FanOffFlag = 0;
 }
 
 void Motor_Forward(){
@@ -30,6 +33,16 @@ void FAN_TurnOn(){
 	Chip_GPIO_SetPinOutHigh(LPC_GPIO,FAN_PORT,FAN_PIN);
 }
 
-void FAN_TurnOff(){
-	Chip_GPIO_SetPinOutLow(LPC_GPIO,FAN_PORT,FAN_PIN);
+void FAN_TurnOff(uint32_t DelayTime){
+	VTimerSet(VTimer_FanOffID,DelayTime);
+	FanOffFlag = 1;
+}
+
+void FanService(){
+	if (FanOffFlag == 1){
+		if (VTimerIsFired(VTimer_FanOffID)){
+			Chip_GPIO_SetPinOutLow(LPC_GPIO,FAN_PORT,FAN_PIN);
+			FanOffFlag = 0;
+		}
+	}
 }

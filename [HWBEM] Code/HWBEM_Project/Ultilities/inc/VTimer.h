@@ -7,7 +7,7 @@
 /* Constant setting           */
 /*============================*/
 
-#define NUMBER_OF_VIR_TIMER 		4
+#define NUMBER_OF_VIR_TIMER 		6
 
 void VTimer_InitController();
 unsigned char VTimerIsFired(unsigned char timerId);

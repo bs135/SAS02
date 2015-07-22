@@ -37,14 +37,18 @@ void SysTick_Handler(void)
 	VTimerService();
 	Input_Service();
 	IncreaseCounterTimer();
-	if (cnt>500){
-		UART_SendNumber(GetCurent());
+	FanService();
+	ADCService();
+	/*if (cnt>500){
+		UART_SendNumber(ADC_GetValue());
+		UART_SendByte(' ');
+		//UART_SendNumber(GetCurent());
 		UART_SendByte(13);
 		cnt = 0;
 	}
 	else {
 		cnt++;
-	}
+	}*/
 }
 
 /**
@@ -77,14 +81,82 @@ void Board_Init(){
  */
 int main(void)
 {
+	uint16_t dataADC1;
+	uint32_t tem;
+	uint32_t count = 0;
+	uint8_t VT_ID ;
 	SystemCoreClockUpdate();
 	Board_Init();
 	UART_SendString("SAS02\r\n\t");
 	LcdPrintString(0,0,"HWBEMV1.0");
 	//System_Init();
-	Motor_Forward();
+
+	VT_ID = VTimerGetID();
+	getCurrentFlag = 1;
 	while (1) {
-	//	System_Running();
+		VTimerSet(VT_ID,6000);
+		Motor_Forward();
+		while (!(VTimerIsFired(VT_ID))){
+			LcdPutDigi5(0,1,GetCurentValue());
+			/*Chip_ADC_SetStartMode(LPC_ADC, ADC_START_NOW, ADC_TRIGGERMODE_RISING);
+			while (Chip_ADC_ReadStatus(LPC_ADC, ADC_CH1, ADC_DR_DONE_STAT) != SET) {};
+			Chip_ADC_ReadValue(LPC_ADC, ADC_CH1, &dataADC1);
+			GetMaxValue(dataADC1);
+			GetMinValue(dataADC1);
+			//UART_SendNumber(dataADC1);
+			//UART_SendByte(' ');
+			//tem = (((uint32_t)dataADC1 - 65)*78 / 51 * 3300 / 1024)* 1000 / 133;	// mA
+
+			//UART_SendNumber(tem);
+			//UART_SendByte(13);
+			count++;
+			//DelayMs(1);*/
+		}
+		ResetMaxValue();
+		/*UART_SendString("RUN\r\n\t");
+		UART_SendNumber(min_current);
+		UART_SendByte(' ');
+		UART_SendNumber(max_current);
+		UART_SendByte(13);
+		tem = (((uint32_t)max_current - 60) * 5 )* 1000 / 133;	// mA
+		UART_SendNumber(tem);
+		UART_SendByte(13);
+		max_current = 0;*/
+
+		Motor_Stop();
+	//	DelayMs(1000);
+		VTimerSet(VT_ID,2000);
+		while (!(VTimerIsFired(VT_ID))){
+			LcdPutDigi5(0,1,GetCurentValue());
+			/*Chip_ADC_SetStartMode(LPC_ADC, ADC_START_NOW, ADC_TRIGGERMODE_RISING);
+			while (Chip_ADC_ReadStatus(LPC_ADC, ADC_CH1, ADC_DR_DONE_STAT) != SET) {};
+			Chip_ADC_ReadValue(LPC_ADC, ADC_CH1, &dataADC1);
+			//UART_SendNumber(dataADC1);
+			//UART_SendByte(' ');
+			GetMaxValue(dataADC1);
+			GetMinValue(dataADC1);
+			//tem = (((uint32_t)dataADC1 * 3300 / 1024) - 128) * 1000 / 133;
+			//UART_SendNumber(tem);
+			//UART_SendByte(13);
+			//DelayMs(20);
+			count++;*/
+		}
+		ResetMaxValue();
+		/*UART_SendString("STOP\r\n\t");
+		UART_SendNumber(min_current);
+		UART_SendByte(' ');
+		UART_SendNumber(max_current);
+		UART_SendByte(13);
+		tem = (((uint32_t)max_current - 60) * 5 )* 1000 / 133;	// mA
+		UART_SendNumber(tem);
+		UART_SendByte(13);
+		max_current = 0;*/
+		//DelayMs(1000);
+		//Motor_Forward();
+		//DelayMs(5000);
+		//Motor_Reverse();
+		//DelayMs(5000);
+		//System_Running();
 		//OpenGate();
 		//CloseGate();
 		/*LED_TurnOnUPSWLED();
@@ -136,6 +208,5 @@ int main(void)
 		//}
 		//DelayMs(500);
 	}
-
 	return 0;
 }

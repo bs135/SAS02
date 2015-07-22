@@ -25,6 +25,6 @@ void Motor_Forward();
 void Motor_Reverse();
 void Motor_Stop();
 void FAN_TurnOn();
-void FAN_TurnOff();
-
+void FAN_TurnOff(uint32_t);
+void FanService();
 #endif /* MOTOR_H_ */
