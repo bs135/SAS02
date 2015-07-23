@@ -12,6 +12,8 @@ void Motor_InitController(){
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO,MOTOR_PORT,MOTOR_FORWARD_PIN);
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO,MOTOR_PORT,MOTOR_REVERSE_PIN);
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO,FAN_PORT,FAN_PIN);
+	Chip_GPIO_SetPinDIROutput(LPC_GPIO,FC2_PORT,FC2_PIN);
+	Chip_GPIO_SetPinOutLow(LPC_GPIO,FC2_PORT,FC2_PIN);
 	VTimer_FanOffID = VTimerGetID();
 	FanOffFlag = 0;
 }

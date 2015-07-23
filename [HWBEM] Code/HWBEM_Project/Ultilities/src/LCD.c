@@ -97,7 +97,7 @@ uint8_t LCD_ReadStatus(){
 	LCD_SetDataPortInput();
 	LCD_SetCommandMode();
 	LCD_SetReadMode();	
-	DelayMs(1);// x :4bit
+	DelayMs(1);
 	LCD_EN_PIN_HIGH();
 	status  = (Chip_GPIO_ReadValue(LPC_GPIO,LCD_DATA_PORT)&(0x000F<<LCD_D4_PIN));
 	status = status<<4;

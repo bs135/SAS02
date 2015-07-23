@@ -5,13 +5,18 @@
  *      Author: XuanHung
  */
 #include "ADC.h"
+#include "UART.h"
+#include <stdlib.h>
 
 static ADC_CLOCK_SETUP_T ADCSetup;
 
-uint16_t dataADC;
-uint8_t adc_cnt = 0;
+uint16_t dataADC = 0;
+uint16_t adc_cnt = 0;
 uint16_t maxValue = 0;
-uint8_t getCurrentFlag = 0;
+uint16_t currentValue = 0;
+int32_t value_temp = 0;
+uint8_t calculate_done = 0;
+
 void ADC_InitController(){
 	//Chip_IOCON_PinMuxSet(LPC_IOCON, IOCON_PIO0_11, FUNC2);
 	Chip_IOCON_PinMuxSet(LPC_IOCON, IOCON_PIO1_0, FUNC2);
@@ -29,39 +34,42 @@ void ADC_InitController(){
 	//Chip_ADC_SetBurstCmd(LPC_ADC,ENABLE);
 
 }
-
 void ADCService(){
-	if (getCurrentFlag == 1){
-		Chip_ADC_SetStartMode(LPC_ADC, ADC_START_NOW, ADC_TRIGGERMODE_RISING);
-		while (Chip_ADC_ReadStatus(LPC_ADC, ADC_CH1, ADC_DR_DONE_STAT) != SET) {};
-		Chip_ADC_ReadValue(LPC_ADC, ADC_CH1, &dataADC);
-		UART_SendNumber(dataADC);
+
+}
+
+void CalculateCurrentValue(){
+	Chip_ADC_SetStartMode(LPC_ADC, ADC_START_NOW, ADC_TRIGGERMODE_RISING);
+	while (Chip_ADC_ReadStatus(LPC_ADC, ADC_CH1, ADC_DR_DONE_STAT) != SET) {};
+	Chip_ADC_ReadValue(LPC_ADC, ADC_CH1, &dataADC);
+	FindMaxValue(dataADC);
+	adc_cnt ++;
+	if (adc_cnt >= 3000){
+		calculate_done = 1;
+		value_temp = (maxValue - 103);
+		value_temp = abs(value_temp);
+		currentValue = value_temp * 37;
+		adc_cnt = 0;
+		ResetMaxValue();
+		//UART_SendNumber(dataADC);
+		//UART_SendByte(13);
+		UART_SendNumber(currentValue);
 		UART_SendByte(13);
+		//LcdPutDigi4(0,0,currentValue);
 	}
 }
-
-uint16_t ADC_GetValue(){
-	return dataADC;
+uint16_t GetCurrentValue(){
+	return currentValue;
 }
-
-void GetCurrentService(){
-	//if (getCurrentFlag == 1){
-	//	uint16_t GetCurentValue()
-	//}
-
+void ResetCurrentValue(){
+	currentValue = 0;
 }
-
-uint16_t GetCurentValue(){
-	uint16_t _temp = 0;
-	_temp = (GetMaxValue(dataADC) - 64);
-	_temp = _temp * 37;
-	return _temp;
-}
-
-
-uint16_t GetMaxValue(uint16_t a){
+void FindMaxValue(uint16_t a){
 	if (maxValue < a)
 		maxValue = a;
+}
+uint16_t GetMaxValue(){
+	return maxValue;
 }
 void ResetMaxValue(){
 	maxValue = 0;

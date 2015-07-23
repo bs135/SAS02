@@ -20,6 +20,10 @@
 #define FAN_PORT			1
 #define FAN_PIN				10
 
+#define LPC_GPIO_FC2     	LPC_GPIO
+#define FC2_PORT			2
+#define FC2_PIN				11
+
 void Motor_InitController();
 void Motor_Forward();
 void Motor_Reverse();

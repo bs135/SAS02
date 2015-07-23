@@ -7,9 +7,12 @@
 
 #include "Input.h"
 #include "LED.h"
+
 uint8_t InputValue[4] = {0,0,0,0};
 uint8_t DipSWValue[4] = {0,0,0,0};
 uint8_t SenValue[4] = {0,0,0,0};
+
+//uint8_t sen1Condition = NO_CONDITION;
 
 void Input_InitController(){
 	/* Configure GPIO pin as input pin */
@@ -64,39 +67,50 @@ void Input_Service(){
 			InputValue[1] &= ~(1<<SWITCH_INDEX);
 		}
 
-		if (Chip_GPIO_GetPinState(LPC_GPIO,SEN1_PORT,SEN1_PIN) == FALSE){
-			LED_TurnOnSen1LED();
+		if (Chip_GPIO_GetPinState(LPC_GPIO,SEN1_PORT,SEN1_PIN) == FALSE){		// SEN1 = LOW
+			if (( Chip_GPIO_GetPortValue(LPC_GPIO,DIPSW_1_PORT) & (1<<DIPSW_1_PIN)) == 0){	// NC
+				LED_TurnOffSen1LED();
+			}
+			else {
+				LED_TurnOnSen1LED();
+			}
+
 			InputValue[1] |= (1<<SEN1_INDEX);
 		}
 		else {
-			LED_TurnOffSen1LED();
+			if (( Chip_GPIO_GetPortValue(LPC_GPIO,DIPSW_1_PORT) & (1<<DIPSW_1_PIN)) == 0){	// NC
+				LED_TurnOnSen1LED();
+			}
+			else {
+				LED_TurnOffSen1LED();
+			}
 			InputValue[1] &= ~(1<<SEN1_INDEX);
 		}
 
 		if (Chip_GPIO_GetPinState(LPC_GPIO,SEN2_PORT,SEN2_PIN) == FALSE){
-			LED_TurnOnSen2LED();
+			LED_TurnOffSen2LED();
 			InputValue[1] |= (1<<SEN2_INDEX);
 		}
 		else {
-			LED_TurnOffSen2LED();
+			LED_TurnOnSen2LED();
 			InputValue[1] &= ~(1<<SEN2_INDEX);
 		}
 
 		if (Chip_GPIO_GetPinState(LPC_GPIO,LM_UP_PORT,LM_UP_PIN) == FALSE){
-			LED_TurnOnUPLMLED();
+			LED_TurnOffUPLMLED();
 			InputValue[1] |= (1<<LM_UP_INDEX);
 		}
 		else {
-			LED_TurnOffUPLMLED();
+			LED_TurnOnUPLMLED();
 			InputValue[1] &= ~(1<<LM_UP_INDEX);
 		}
 
 		if (Chip_GPIO_GetPinState(LPC_GPIO,LM_DOWN_PORT,LM_DOWN_PIN) == FALSE){
-			LED_TurnOnDWLMLED();
+			LED_TurnOffDWLMLED();
 			InputValue[1] |= (1<<LM_DOWN_INDEX);
 		}
 		else {
-			LED_TurnOffDWLMLED();
+			LED_TurnOnDWLMLED();
 			InputValue[1] &= ~(1<<LM_DOWN_INDEX);
 		}
 
