@@ -31,6 +31,7 @@ void System_Init(){
 	VTimer_MotorTotalTimeout = VTimerGetID();
 	VTimer_MotorDelayTimeout = VTimerGetID();
 	LCD_Clear();
+	LCD_DisplayCounter(TotalCounter);
 	LcdPrintString(0,0,"__");
 	LcdPrintString(2,0,"0.00S");
 	if ((DIPSW_GetValue() & (1<<DIPSW4_INDEX)) == (1<<DIPSW4_INDEX)){
@@ -134,7 +135,6 @@ void System_Running(){
 		MotorTotalTimer = 6000;
 		LcdPrintString(5,1,"6S");
 	}
-	LCD_DisplayCounter(TotalCounter);
 	//if (GateState == GATE_CLOSED){
 	//	OpenGate();
 	//}
@@ -152,7 +152,7 @@ void System_Running(){
 			CalculateCurrentValue();
 			if (calculate_done == 1){
 				LCD_DisplayCurrent(GetCurrentValue());
-				LCD_PrintTime(2,0, GetCounterTimer());
+				LCD_PrintTime(2,0, MotorTotalTimer - GetCounterTimer());
 				calculate_done = 0;
 			}
 			if (carhitDetectFlag == 0){
@@ -175,9 +175,13 @@ void System_Running(){
 		ClearCarHitFlag();
 		FAN_TurnOff(60000);
 		ResetCounterTimer();
-		LcdPrintString(2,0,"0.00S");
+		LcdPrintString(0,0,"__");
+		//LcdPrintString(2,0,"0.00S");
+		if (OpenSuccess == 1){
+			TotalCounter ++;
+		}
 		OpenSuccess = 0;
-		TotalCounter ++;
+		LCD_DisplayCounter(TotalCounter);
 	}
 	//else if (DOWN_Button_Pressed()|| (SEN2_Pressed())){
 	else if (DOWN_Button_Pressed()){
@@ -192,16 +196,19 @@ void System_Running(){
 				CloseDelayTimer = 3000;
 				break;
 			case 2:
-				CloseDelayTimer = 1;
+				CloseDelayTimer = 0;
 				break;
 			case 3:
-				CloseDelayTimer = 1;
+				CloseDelayTimer = 0;
 				break;
 			default:
 				break;
 		}
 		VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
-		while (!VTimerIsFired(VTimer_MotorDelayTimeout));
+		ResetCounterTimer();
+		while (!VTimerIsFired(VTimer_MotorDelayTimeout)){
+			LCD_PrintTime(2,0,CloseDelayTimer - GetCounterTimer());
+		}
 		ObjectDetectFlag = 1;
 		while (ObjectDetectFlag == 1){
 			//UART_SendString("ObjectDetectFlag\r\n\t");
@@ -217,79 +224,79 @@ void System_Running(){
 			}
 		}
 
-		while (CloseSuccess == 0){
-			Motor_Reverse();
-			VTimerSet(VTimer_MotorDelayTimeout,TIME_CHECK_CARHIT);
-			if ((DIPSW_GetValue() & (1<<DIPSW1_INDEX)) == (1<<DIPSW1_INDEX)){	// DIPSW1 = ON , SEN1 = N/C
-				VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-				ResetCounterTimer();
-				LCD_PrintTime(2,0, GetCounterTimer());
-				while (!VTimerIsFired(VTimer_MotorTotalTimeout)){
-					CalculateCurrentValue();
-					if (calculate_done == 1){
-						LCD_DisplayCurrent(GetCurrentValue());
-						LCD_PrintTime(2,0, GetCounterTimer());
-						calculate_done = 0;
-					}
-					if (VTimerIsFired(VTimer_MotorDelayTimeout)){
-						carhitDetectFlag = 1;
-					}
+		//while (CloseSuccess == 0){
+		Motor_Reverse();
+		VTimerSet(VTimer_MotorDelayTimeout,TIME_CHECK_CARHIT);
+		VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+		ResetCounterTimer();
+		LCD_PrintTime(2,0, MotorTotalTimer - GetCounterTimer());
+		if ((DIPSW_GetValue() & (1<<DIPSW1_INDEX)) == (1<<DIPSW1_INDEX)){	// DIPSW1 = ON , SEN1 = N/C
+			while (!VTimerIsFired(VTimer_MotorTotalTimeout)){
+				CalculateCurrentValue();
+				if (calculate_done == 1){
+					LCD_DisplayCurrent(GetCurrentValue());
+					LCD_PrintTime(2,0, MotorTotalTimer  - GetCounterTimer());
+					calculate_done = 0;
+				}
+				if (VTimerIsFired(VTimer_MotorDelayTimeout)){
+					carhitDetectFlag = 1;
+				}
 
-					if (!LM_DOWN_Pressed()){
-						CloseSuccess = 1;
+				if (!LM_DOWN_Pressed()){
+					CloseSuccess = 1;
+					ClearCarHitFlag();
+					break;
+				}
+				else {
+					if(!SEN1_Pressed() || CarHitDetection()){	// Detect object
 						ClearCarHitFlag();
-						break;
-					}
-					else {
-						if(!SEN1_Pressed() || CarHitDetection()){	// Detect object
-							ClearCarHitFlag();
-							Motor_Forward();
-							while (!(SEN1_Pressed())){
-								if (!LM_UP_Pressed()){
-									Motor_Stop();
-								}
+						Motor_Forward();
+						while (!(SEN1_Pressed())){
+							if (!LM_UP_Pressed()){
+								Motor_Stop();
 							}
-							Motor_Reverse();	// resuming closing
-							VTimerSet(VTimer_MotorDelayTimeout,TIME_CHECK_CARHIT);
-							VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-							ResetCounterTimer();
 						}
+						Motor_Reverse();	// resuming closing
+						VTimerSet(VTimer_MotorDelayTimeout,TIME_CHECK_CARHIT);
+						VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+						ResetCounterTimer();
 					}
 				}
 			}
-			else {				// N/O
-				VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-				ResetCounterTimer();
-				LCD_PrintTime(2,0, GetCounterTimer());
-				while (!VTimerIsFired(VTimer_MotorTotalTimeout)){
-					CalculateCurrentValue();
-					if (calculate_done == 1){
-						LCD_PrintTime(2,0, GetCounterTimer());
-						LCD_DisplayCurrent(GetCurrentValue());
-						calculate_done = 0;
-					}
-					if (VTimerIsFired(VTimer_MotorDelayTimeout)){
-						carhitDetectFlag = 1;
-					}
+		}
+		else {				// N/O
+			//VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+			//ResetCounterTimer();
+			//LCD_PrintTime(2,0, MotorTotalTimer - GetCounterTimer());
+			while (!VTimerIsFired(VTimer_MotorTotalTimeout)){
+				CalculateCurrentValue();
+				if (calculate_done == 1){
+					LCD_PrintTime(2,0, MotorTotalTimer - GetCounterTimer());
+					LCD_DisplayCurrent(GetCurrentValue());
+					calculate_done = 0;
+				}
+				if (VTimerIsFired(VTimer_MotorDelayTimeout)){
+					carhitDetectFlag = 1;
+				}
 
-					if (!LM_DOWN_Pressed()){
-						CloseSuccess = 1;
-						break;
-					}
-					else {
-						if(SEN1_Pressed()|| CarHitDetection()){	// Detect object
-							Motor_Forward();
-							ClearCarHitFlag();
-							while ((SEN1_Pressed())){
-								if (!LM_UP_Pressed()){
-									Motor_Stop();
-								}
+				if (!LM_DOWN_Pressed()){
+					CloseSuccess = 1;
+					ClearCarHitFlag();
+					break;
+				}
+				else {
+					if(SEN1_Pressed()|| CarHitDetection()){	// Detect object
+						Motor_Forward();
+						ClearCarHitFlag();
+						while ((SEN1_Pressed())){
+							if (!LM_UP_Pressed()){
+								Motor_Stop();
 							}
-							Motor_Reverse();	// resuming closing
-							VTimerSet(VTimer_MotorDelayTimeout,TIME_CHECK_CARHIT);
-							VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-							ResetCounterTimer();
 						}
+						Motor_Reverse();	// resuming closing
+						VTimerSet(VTimer_MotorDelayTimeout,TIME_CHECK_CARHIT);
+						VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+						ResetCounterTimer();
 					}
 				}
 			}
@@ -300,13 +307,16 @@ void System_Running(){
 		LCD_DisplayCurrent(GetCurrentValue());
 		ClearCarHitFlag();
 		ResetCounterTimer();
-		LcdPrintString(2,0,"0.00S");
-		CloseSuccess = 0;
+		LcdPrintString(0,0,"__");
+		//LcdPrintString(2,0,"0.00S");
 		ObjectDetectFlag = 0;
-		TotalCounter ++;
+		if (CloseSuccess ==1){
+			TotalCounter ++;
+		}
+		CloseSuccess = 0;
+		LCD_DisplayCounter(TotalCounter);
 		//GateState = GATE_CLOSED;
 	}
-
 }
 
 void OpenGate(){
@@ -495,7 +505,7 @@ void CloseGate(){
 		Motor_Stop();
 		FAN_TurnOff(60000);
 		ResetCounterTimer();
-		LcdPrintString(2,0,"0.00S");
+		//LcdPrintString(2,0,"0.00S");
 		//GateState = GATE_CLOSED;
 	}
 }
@@ -541,5 +551,4 @@ void LCD_DisplayCounter(uint32_t value){
 	LcdPutChar('0' + ((value/100) %10));
 	LcdPutChar('0' + ((value/10) %10));
 	LcdPutChar('0' + (value %10));
-
 }

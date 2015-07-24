@@ -30,7 +30,7 @@ void LED_InitController();
 // User LED
 void LED_TurnOnUserLED();
 void LED_TurnOffUserLED();
-
+void LED_ToggleUserLED();
 // UP/DOWN Switch LED
 void LED_TurnOnUPSWLED();
 void LED_TurnOffUPSWLED();

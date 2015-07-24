@@ -39,15 +39,16 @@ void SysTick_Handler(void)
 	IncreaseCounterTimer();
 	FanService();
 	//ADCService();
-	/*if (cnt>50){
-		UART_SendNumber(dataADC);
+	if (cnt>500){
+		LED_ToggleUserLED();
+		//UART_SendNumber(dataADC);
 		//UART_SendNumber(GetCurent());
-		UART_SendByte(13);
+		//UART_SendByte(13);
 		cnt = 0;
 	}
 	else {
 		cnt++;
-	}*/
+	}
 }
 
 /**

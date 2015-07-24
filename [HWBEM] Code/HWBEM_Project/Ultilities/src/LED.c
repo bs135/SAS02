@@ -26,6 +26,9 @@ void LED_TurnOnUserLED(){
 void LED_TurnOffUserLED(){
 	Chip_GPIO_SetPinOutLow(LPC_GPIO,USER_LED_PORT,USER_LED_PIN);
 }
+void LED_ToggleUserLED(){
+	Chip_GPIO_SetPinToggle(LPC_GPIO,USER_LED_PORT,USER_LED_PIN);
+}
 void LED_TurnOnUPSWLED(){
 	Chip_GPIO_SetPinOutHigh(LPC_GPIO,DIRSW_LED_PORT,UP_SW_LED_PIN);
 }
