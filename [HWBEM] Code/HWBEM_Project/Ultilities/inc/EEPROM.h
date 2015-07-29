@@ -18,7 +18,7 @@
 
 /* EEPROM SLAVE data */
 #define I2C_SLAVE_EEPROM_SIZE       64
-#define I2C_SLAVE_EEPROM_ADDR       0x5A
+#define I2C_SLAVE_EEPROM_ADDR       0x50
 
 void EEPROM_InitController(void);
 
