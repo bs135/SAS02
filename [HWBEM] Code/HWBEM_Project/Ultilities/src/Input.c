@@ -99,20 +99,20 @@ void Input_Service(){
 
 		if (Chip_GPIO_GetPinState(LPC_GPIO,LM_UP_PORT,LM_UP_PIN) == FALSE){
 			LED_TurnOffUPLMLED();
-			InputValue[1] |= (1<<LM_UP_INDEX);
+			InputValue[1] &= ~(1<<LM_UP_INDEX);
 		}
 		else {
 			LED_TurnOnUPLMLED();
-			InputValue[1] &= ~(1<<LM_UP_INDEX);
+			InputValue[1] |= (1<<LM_UP_INDEX);
 		}
 
 		if (Chip_GPIO_GetPinState(LPC_GPIO,LM_DOWN_PORT,LM_DOWN_PIN) == FALSE){
 			LED_TurnOffDWLMLED();
-			InputValue[1] |= (1<<LM_DOWN_INDEX);
+			InputValue[1] &= ~(1<<LM_DOWN_INDEX);
 		}
 		else {
 			LED_TurnOnDWLMLED();
-			InputValue[1] &= ~(1<<LM_DOWN_INDEX);
+			InputValue[1] |= (1<<LM_DOWN_INDEX);
 		}
 
 		if ((InputValue[3] == InputValue[2]) && (InputValue[2] == InputValue[1])){

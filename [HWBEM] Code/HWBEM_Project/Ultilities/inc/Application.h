@@ -10,10 +10,26 @@
 
 #include "chip.h"
 
-#define CAR_HIT_CURRENT		3050
+#define CAR_HIT_CURRENT			3050
 
-#define GATE_OPENED		0
-#define GATE_CLOSED		1
+#define WAIT_BUTTON				0
+#define LEVER_MOVING_UP			1
+#define LEVER_WAIT_MOVE_DOWN	2
+#define LEVER_MOVE_DOWN			3
+#define REACH_UP_LIMIT			4
+#define REACH_DOWN_LIMIT		5
+#define CAR_HIT_DETECT_UP		6
+#define CAR_HIT_DETECT_DOWN		7
+#define INCREASE_COUNTER		8
+#define RESET_VALUE				9
+#define WAIT_OBJECT_REMOVE		10
+
+
+#define SEN1_STATE_NO 			0
+#define SEN1_STATE_NC 			1
+
+#define GATE_OPENED				0
+#define GATE_CLOSED				1
 
 void System_Init();
 void System_Running();
