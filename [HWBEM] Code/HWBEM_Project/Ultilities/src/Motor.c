@@ -33,6 +33,7 @@ void Motor_Stop(){
 
 void FAN_TurnOn(){
 	Chip_GPIO_SetPinOutHigh(LPC_GPIO,FAN_PORT,FAN_PIN);
+	FanOffFlag = 0;
 }
 
 void FAN_TurnOff(uint32_t DelayTime){

@@ -10,7 +10,7 @@
 
 #include "chip.h"
 
-#define CAR_HIT_CURRENT		10000
+#define CAR_HIT_CURRENT		3050
 
 #define GATE_OPENED		0
 #define GATE_CLOSED		1

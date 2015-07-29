@@ -14,8 +14,8 @@
 #define BUTTON_UP_PIN		2
 #define BUTTON_DOWN_PIN		5
 
-#define SWITCH_PORT			0
-#define SWITCH_PIN			1
+#define SWITCH_PORT			1
+#define SWITCH_PIN			4
 
 #define SEN1_PORT			0
 #define SEN1_PIN			6
