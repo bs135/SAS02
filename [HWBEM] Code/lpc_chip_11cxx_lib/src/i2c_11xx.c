@@ -425,7 +425,7 @@ int Chip_I2C_MasterTransfer(I2C_ID_T id, I2C_XFER_T *xfer)
 	}
 	iic->mEvent(id, I2C_EVENT_WAIT);
 	iic->mXfer = 0;
-
+	//UART_SendString("STA\r\n\t");
 	/* Wait for stop condition to appear on bus */
 	while (!isI2CBusFree(iic->ip)) {}
 
@@ -486,6 +486,7 @@ void Chip_I2C_MasterStateHandler(I2C_ID_T id)
 {
 	if (!handleMasterXferState(i2c[id].ip, i2c[id].mXfer)) {
 		i2c[id].mEvent(id, I2C_EVENT_DONE);
+
 	}
 }
 

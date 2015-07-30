@@ -17,9 +17,11 @@
 #define I2C_DEFAULT_SPEED    	I2C_SPEED_400KHZ
 
 /* EEPROM SLAVE data */
-#define I2C_SLAVE_EEPROM_SIZE       64
-#define I2C_SLAVE_EEPROM_ADDR       0x5A
+#define I2C_SLAVE_EEPROM_SIZE       65
+#define I2C_SLAVE_EEPROM_ADDR       0xA0
 
 void EEPROM_InitController(void);
-
+void EEPROM_ReadBytes(uint8_t address, uint8_t* data, uint8_t length);
+void EEPROM_WriteBytes(uint8_t address, uint8_t* data, uint8_t length);
 #endif /* INC_EEPROM_H_ */
+
