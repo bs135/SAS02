@@ -37,6 +37,7 @@ void Input_InitController(){
 
 uint8_t input_counter = 0;
 uint8_t input_temp = 0;
+uint8_t SEN2HoldFlag = 0;
 void Input_Service(){
 	if (input_counter > 5){
 		// button and switch
@@ -90,6 +91,7 @@ void Input_Service(){
 
 		if (Chip_GPIO_GetPinState(LPC_GPIO,SEN2_PORT,SEN2_PIN) == FALSE){
 			LED_TurnOffSen2LED();
+			SEN2HoldFlag = 0;
 			InputValue[1] |= (1<<SEN2_INDEX);
 		}
 		else {

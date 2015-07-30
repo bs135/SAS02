@@ -71,5 +71,5 @@ uint8_t LM_DOWN_Pressed(void);
 
 void Input_Service(void);
 uint8_t DIPSW_GetValue();
-
+extern uint8_t SEN2HoldFlag;
 #endif /* INC_INPUT_H_ */

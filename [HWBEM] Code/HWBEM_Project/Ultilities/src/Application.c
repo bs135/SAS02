@@ -13,7 +13,7 @@
 #include "ADC.h"
 #include "LCD.h"
 
-#define CURRENT_VERSION		2
+#define CURRENT_VERSION		3
 
 #define TIME_CHECK_CARHIT	300
 
@@ -59,7 +59,7 @@ void System_Init(){
 	else {
 		LcdPrintString(8,1,"D1");
 	}
-	if (!LM_DOWN_Pressed()){
+	/*if (!LM_DOWN_Pressed()){
 		GateState = GATE_CLOSED;
 		UART_SendString("GATE_CLOSED\r\n\t");
 	}
@@ -105,7 +105,7 @@ void System_Init(){
 				}
 			}
 		}
-	}
+	}*/
 	ResetCurrentValue();
 	LCD_DisplayCurrent(GetCurrentValue());
 	ClearCarHitFlag();
@@ -122,7 +122,7 @@ uint8_t CloseSuccess = 0;
 uint8_t dipSW23_value = 0;
 uint8_t ObjectDetectFlag = 0;
 uint8_t SEN1State = 0;
-
+uint8_t SEN2Flag = 0;
 void System_Running(){
 	if (SWITCH_Pressed()){
 		LCD_Clear();
@@ -134,35 +134,37 @@ void System_Running(){
 		LCD_DisplayCounter(TotalCounter);
 		LCD_DisplayCurrent(GetCurrentValue());
 	}
-	if ((DIPSW_GetValue() & (1<<DIPSW1_INDEX)) == (1<<DIPSW1_INDEX)){	// DIPSW1 = ON , SEN1 = N/C
-		SEN1State = SEN1_STATE_NC;
-		LcdPrintString(11,1,"sNC");
-	}
-	else {
-		SEN1State = SEN1_STATE_NO;
-		LcdPrintString(11,1,"sNO");
-	}
+	if (SystemState == WAIT_BUTTON){
+			if ((DIPSW_GetValue() & (1<<DIPSW1_INDEX)) == (1<<DIPSW1_INDEX)){	// DIPSW1 = ON , SEN1 = N/C
+			SEN1State = SEN1_STATE_NC;
+			LcdPrintString(11,1,"sNC");
+		}
+		else {
+			SEN1State = SEN1_STATE_NO;
+			LcdPrintString(11,1,"sNO");
+		}
 
-	if ((DIPSW_GetValue() & (1<<DIPSW3_INDEX)) == (1<<DIPSW3_INDEX)){	// ON
-		CloseDelayTimer = 0;
-		LcdPrintString(8,1,"N-");
-	}
-	else if ((DIPSW_GetValue() & (1<<DIPSW2_INDEX)) == (1<<DIPSW2_INDEX)){ // ON
-		CloseDelayTimer = 3000;
-		LcdPrintString(8,1,"D3");
-	}
-	else {
-		CloseDelayTimer = 1000;
-		LcdPrintString(8,1,"D1");
-	}
+		if ((DIPSW_GetValue() & (1<<DIPSW3_INDEX)) == (1<<DIPSW3_INDEX)){	// ON
+			CloseDelayTimer = 0;
+			LcdPrintString(8,1,"N-");
+		}
+		else if ((DIPSW_GetValue() & (1<<DIPSW2_INDEX)) == (1<<DIPSW2_INDEX)){ // ON
+			CloseDelayTimer = 3000;
+			LcdPrintString(8,1,"D3");
+		}
+		else {
+			CloseDelayTimer = 1000;
+			LcdPrintString(8,1,"D1");
+		}
 
-	if ((DIPSW_GetValue() & (1<<DIPSW4_INDEX)) == (1<<DIPSW4_INDEX)){	// N/C
-		MotorTotalTimer = 3000;
-		LcdPrintString(5,1,"3S");
-	}
-	else {
-		MotorTotalTimer = 6000;
-		LcdPrintString(5,1,"6S");
+		if ((DIPSW_GetValue() & (1<<DIPSW4_INDEX)) == (1<<DIPSW4_INDEX)){	// N/C
+			MotorTotalTimer = 3000;
+			LcdPrintString(5,1,"3S");
+		}
+		else {
+			MotorTotalTimer = 6000;
+			LcdPrintString(5,1,"6S");
+		}
 	}
 	switch (SystemState){
 		case WAIT_BUTTON:
@@ -174,12 +176,23 @@ void System_Running(){
 				ResetCounterTimer();
 				VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
 				SystemState = LEVER_MOVING_UP;
+				CalculateCurrentValue();
 			}
 			else if (DOWN_Button_Pressed()){
+
 				LcdPrintString(0,0,"DW");
 				FAN_TurnOn();
 				VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
 				SystemState = LEVER_WAIT_MOVE_DOWN;
+
+			}
+			else if (SEN2HoldFlag == 0){
+				if (!(SEN2_Pressed())){
+					LcdPrintString(0,0,"DW");
+					FAN_TurnOn();
+					VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
+					SystemState = LEVER_WAIT_MOVE_DOWN;
+				}
 			}
 			else if (ObjectDetectFlag == 1){
 				SystemState = WAIT_OBJECT_REMOVE;
@@ -197,24 +210,23 @@ void System_Running(){
 				SystemState = REACH_UP_LIMIT;
 				break;
 			}
-
+			CalculateCurrentValue();
+			if (calculate_done == 1){
+				LCD_DisplayCurrent(GetCurrentValue());
+				calculate_done = 0;
+			}
 			if (carhitDetectFlag == 0){
-				if (VTimerIsFired(VTimer_MotorDelayTimeout)){
+				if (VTimerIsFired(VTimer_CarhitDelayTimeout)){
 					carhitDetectFlag = 1;
 				}
 			}
 			else if (carhitDetectFlag == 1){
 				if (CarHitDetection()){
-					SystemState = CAR_HIT_DETECT_UP;
-					break;
+					//SystemState = CAR_HIT_DETECT_UP;
+					//break;
+					carhitDetectFlag = 0;
 				}
 			}
-
-			if (calculate_done == 1){
-				LCD_DisplayCurrent(GetCurrentValue());
-				calculate_done = 0;
-			}
-
 			if (DOWN_Button_Pressed()|| (!SEN2_Pressed())){
 				ResetCounterTimer();
 				VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
@@ -228,7 +240,6 @@ void System_Running(){
 					CloseWhenOpenFlag = 0;
 				}
 			}
-
 			break;
 		case LEVER_WAIT_MOVE_DOWN:
 			if (VTimerIsFired(VTimer_MotorDelayTimeout)){
@@ -236,6 +247,8 @@ void System_Running(){
 				VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
 				LcdPrintString(0,0,"DW");
 				Motor_Reverse();
+				CalculateCurrentValue();
+				VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
 				SystemState = LEVER_MOVE_DOWN;
 			}
 			break;
@@ -265,8 +278,10 @@ void System_Running(){
 			}
 			if (UP_Button_Pressed()){
 				Motor_Forward();
+				LcdPrintString(0,0,"UP");
 				ResetCounterTimer();
 				VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+				VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
 				SystemState = LEVER_MOVING_UP;
 				break;
 			}
@@ -294,6 +309,25 @@ void System_Running(){
 					ObjectDetectFlag = 0;
 				}
 			}
+
+			CalculateCurrentValue();
+			if (calculate_done == 1){
+				LCD_DisplayCurrent(GetCurrentValue());
+				calculate_done = 0;
+			}
+			if (carhitDetectFlag == 0){
+				if (VTimerIsFired(VTimer_CarhitDelayTimeout)){
+					carhitDetectFlag = 1;
+				}
+			}
+			else if (carhitDetectFlag == 1){
+				if (CarHitDetection()){
+					//SystemState = CAR_HIT_DETECT_DOWN;
+					//break;
+					carhitDetectFlag = 0;
+				}
+			}
+
 			if ((LM_DOWN_Pressed())){
 				LCD_PrintTime(2,0,GetCounterTimer());
 				SystemState = REACH_DOWN_LIMIT;
@@ -308,6 +342,7 @@ void System_Running(){
 				ObjectDetectFlag = 0;
 			}
 			else if (CloseWhenOpenFlag == 0){
+				Motor_Stop();
 				SystemState = INCREASE_COUNTER;
 			}
 			else if (ObjectDetectFlag == 1){
@@ -335,10 +370,12 @@ void System_Running(){
 			Motor_Stop();
 			FAN_TurnOff(60000);
 			LcdPrintString(0,0,"__");
+			ResetCurrentValue();
 			LCD_DisplayCurrent(GetCurrentValue());
 			carhitDetectFlag = 0;
 			calculate_done = 0;
 			CloseWhenOpenFlag = 0;
+			SEN2HoldFlag = 1;
 			SystemState = WAIT_BUTTON;
 			break;
 		default:
@@ -791,7 +828,7 @@ uint32_t GetCounterTimer(){
 uint8_t CarHitDetection(){
 	if (carhitDetectFlag == 1){
 		if (GetCurrentValue() > CAR_HIT_CURRENT){
-			UART_SendString("CAR HIT\r\n\t");
+			//UART_SendString("CAR HIT\r\n\t");
 			return 1;
 		}
 	}

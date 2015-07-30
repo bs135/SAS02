@@ -46,15 +46,15 @@ void CalculateCurrentValue(){
 	adc_cnt ++;
 	if (adc_cnt >= 3000){
 		calculate_done = 1;
-		value_temp = (maxValue - 103);
-		value_temp = abs(value_temp);
+		value_temp = (maxValue - 120);
+		//value_temp = abs(value_temp);
 		currentValue = value_temp * 37;
 		adc_cnt = 0;
 		ResetMaxValue();
 		//UART_SendNumber(dataADC);
 		//UART_SendByte(13);
-		UART_SendNumber(currentValue);
-		UART_SendByte(13);
+		//UART_SendNumber(currentValue);
+		//UART_SendByte(13);
 		//LcdPutDigi4(0,0,currentValue);
 	}
 }
@@ -65,8 +65,10 @@ void ResetCurrentValue(){
 	currentValue = 0;
 }
 void FindMaxValue(uint16_t a){
-	if (maxValue < a)
-		maxValue = a;
+	if (a >=120){
+		if (maxValue < a)
+			maxValue = a;
+	}
 }
 uint16_t GetMaxValue(){
 	return maxValue;
