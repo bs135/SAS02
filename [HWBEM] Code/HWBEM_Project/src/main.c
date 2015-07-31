@@ -51,10 +51,11 @@ void SysTick_Handler(void)
 		cnt++;
 	}
 }
+/*
 void I2C_IRQHandler(void)
 {
 	Chip_I2C_MasterStateHandler(I2C0);
-}
+}*/
 /**
  * @brief	Handle interrupt from 32-bit timer
  * @return	Nothing
@@ -77,7 +78,9 @@ void Board_Init(){
 	UART_InitController();
 	ADC_InitController();
 	Input_InitController();
-	EEPROM_InitController();
+	//EEPROM_InitController();
+	//I2CInit(I2CMASTER);
+	I2C_InitController();
 }
 
  /* @brief	main routine
@@ -89,20 +92,28 @@ int main(void)
 	SystemCoreClockUpdate();
 	Board_Init();
 	UART_SendString("SAS02\r\n\t");
-	LcdPrintString(0,0,"HWBEMV1.0");
+	//LcdPrintString(0,0,"HWBEMV1.0");
 	//System_Init();
 
 	UART_SendString("START\r\n\t");
-	temp = 100;
+	temp = 150;
 	UART_SendNumber(temp);
-	//EEPROM_WriteBytes(3,&temp,1);
-	//UART_SendString("WRITE\r\n\t");
-	//temp = 0;
-	EEPROM_ReadBytes(3,&temp,1);
+	//EEPROM_WriteBytes(3,temp);
+	I2C_SendByte(0,temp);
+
+	UART_SendString("WRITE\r\n\r\n\t");
+	DelayMs(10);
+	temp = 5;
+	//temp = EEPROM_ReadBytes(3);
+	I2C_ReadByte(0,&temp);
 	UART_SendString("READ\r\n\t");
 	UART_SendNumber(temp);
 	while (1) {
 		//System_Running();
+		/*I2C_ReadByte(3,&temp);
+		UART_SendString("READ\r\n\t");
+		UART_SendNumber(temp);
+		DelayMs(100);*/
 	}
 	return 0;
 }
