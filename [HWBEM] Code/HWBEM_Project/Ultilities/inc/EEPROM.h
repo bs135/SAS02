@@ -27,20 +27,6 @@
 
 #define RD_BIT              0x01
 
-#define I2C_IDLE              0
-#define I2C_STARTED           1
-#define I2C_RESTARTED         2
-#define I2C_REPEATED_START    3
-#define DATA_ACK              4
-#define DATA_NACK             5
-#define I2C_BUSY              6
-#define I2C_NO_DATA           7
-#define I2C_NACK_ON_ADDRESS   8
-#define I2C_NACK_ON_DATA      9
-#define I2C_ARBITRATION_LOST  10
-#define I2C_TIME_OUT          11
-#define I2C_OK                12
-
 #define I2CONSET_I2EN       (0x1<<6)  /* I2C Control Set Register */
 #define I2CONSET_AA         (0x1<<2)
 #define I2CONSET_SI         (0x1<<3)
@@ -60,11 +46,13 @@
 #define I2SCLL_HS_SCLL		0x00000015  /* Fast Plus I2C SCL Duty Cycle Low Reg */
 
 void I2C_InitController();
-extern void I2C_IRQHandler( void );
-extern uint32_t I2CInit( uint32_t I2cMode );
-void I2C_SendByte(uint8_t reg, uint8_t data);
+void I2C_SendByte(uint8_t address, uint8_t data);
+void I2C_SendBytes(uint8_t address, uint8_t* data,uint8_t length);
 void I2C_ReadByte(uint8_t reg, uint8_t* data);
-uint8_t EEPROM_ReadBytes(uint8_t address);
-void EEPROM_WriteBytes(uint8_t address, uint8_t data);
+void I2C_ReadBytes(uint8_t address, uint8_t* data,uint8_t length);
+uint8_t EEPROM_ReadByte(uint8_t address);
+void EEPROM_ReadBytes(uint8_t address,uint8_t* data,uint8_t length);
+void EEPROM_WriteByte(uint8_t address, uint8_t data);
+void EEPROM_WriteBytes(uint8_t address, uint8_t* data,uint8_t length);
 #endif /* INC_EEPROM_H_ */
 

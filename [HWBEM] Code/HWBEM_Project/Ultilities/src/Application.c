@@ -36,6 +36,7 @@ void System_Init(){
 	VTimer_MotorTotalTimeout = VTimerGetID();
 	VTimer_MotorDelayTimeout = VTimerGetID();
 	VTimer_CarhitDelayTimeout = VTimerGetID();
+	TotalCounter = EEPROMReadCycleCounter();
 	LCD_Clear();
 	LCD_DisplayCounter(TotalCounter);
 	LcdPrintString(0,0,"__");
@@ -361,6 +362,7 @@ void System_Running(){
 		case INCREASE_COUNTER:
 			if (ObjectDetectFlag == 0){
 				TotalCounter ++;
+				EEPROMWriteCycleCounter(TotalCounter);
 				LCD_DisplayCounter(TotalCounter);
 			}
 			SystemState = RESET_VALUE;
@@ -859,8 +861,9 @@ void LCD_DisplayCounter(uint32_t value){
 }
 
 void LcdPrintVersion(uint32_t version){
-	LcdPrintString(0,0,"Version");
-	LCD_GotoXY(0,1);
+	LcdPrintString(0,0,"HWBEM v1.0");
+	LcdPrintString(0,1,"Fw:");
+	LCD_GotoXY(4,1);
 	LcdPutChar('0' + ((version/100000) %10));
 	LcdPutChar('0' + ((version/10000) %10));
 	LcdPutChar('0' + ((version/1000) %10));
@@ -868,3 +871,27 @@ void LcdPrintVersion(uint32_t version){
 	LcdPutChar('0' + ((version/10) %10));
 	LcdPutChar('0' + (version %10));
 }
+
+void EEPROMWriteCycleCounter(uint32_t _value){
+	uint8_t temp[4];
+	temp[0] = (uint8_t)(_value >> 24) & 0xFF;
+	temp[1] = (uint8_t)(_value >> 16) & 0xFF;
+	temp[2] = (uint8_t)(_value >> 8) & 0xFF;
+	temp[3] = (uint8_t)_value & 0xFF;
+	EEPROM_WriteBytes(EEPROM_CYCLE_COUNTER_ADDRESS,temp,4);
+}
+
+uint32_t EEPROMReadCycleCounter(){
+	uint32_t temp_value = 0;
+	uint8_t temp[4];
+	EEPROM_ReadBytes(EEPROM_CYCLE_COUNTER_ADDRESS,temp,4);
+	temp_value = temp[0];
+	temp_value = temp_value << 8;
+	temp_value |= temp[1];
+	temp_value = temp_value << 8;
+	temp_value |= temp[2];
+	temp_value = temp_value << 8;
+	temp_value |= temp[3];
+	return temp_value;
+}
+
