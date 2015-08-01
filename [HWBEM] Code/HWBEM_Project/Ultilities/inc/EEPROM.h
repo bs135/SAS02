@@ -16,7 +16,7 @@
 #define I2C_SPEED_400KHZ        400000
 #define I2C_DEFAULT_SPEED    	I2C_SPEED_400KHZ
 
-#define BUFSIZE             64
+#define BUFSIZE             256
 #define MAX_TIMEOUT         0x00FFFFFF
 
 #define I2CMASTER           0x01

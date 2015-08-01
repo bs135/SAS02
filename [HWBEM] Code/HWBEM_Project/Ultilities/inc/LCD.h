@@ -68,17 +68,17 @@ void LCD_PutDigi3(uint8_t X, uint8_t Y,int num);
 void LCD_PutDigi4(uint8_t X, uint8_t Y,int num);
 void LCD_PutDigi5(uint8_t X, uint8_t Y,int num);
 void LCD_PutBinary(uint8_t X, uint8_t Y,uint16_t num);
+void LcdPutChar(uint8_t c);
+void LcdPrintString (uint8_t column, uint8_t row, char * ptr);
 
 void LCD_GotoXY(uint8_t x, uint8_t y);
 void LCDScrollLeft();
 void LCDScrollRight();
 void LCD_DataOut(uint8_t val);
 void LCD_Clear(void);
-void LCD_PrintString(uint8_t col,uint8_t row,char *str);
 void LCD_GotoXY(uint8_t  sx,uint8_t sy );
 void LCD_PrintChar (uint8_t row, uint8_t column, uint8_t val);
 void LCD_PrintNumber (uint8_t x, uint8_t y, int number, uint8_t quantity);
-void LCD_PrintString (uint8_t x, uint8_t y, char * ptr);
 void LCD_PrintTime(uint8_t column, uint8_t row,uint32_t time);
 void LCD_Delay(uint32_t cnt);
 

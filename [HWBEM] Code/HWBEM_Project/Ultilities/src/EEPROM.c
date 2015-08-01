@@ -10,7 +10,7 @@
 #include "chip.h"
 #include "VTimer.h"
 
-#define	 I2C_TIMEOUT 100		//ms
+#define	 I2C_TIMEOUT 200		//ms
 volatile uint8_t I2CTimerID = 0;
 
 void I2C_InitController(){
@@ -266,7 +266,7 @@ void I2C_ReadBytes(uint8_t address, uint8_t* data,uint8_t length){
 	VTimerSet(I2CTimerID,I2C_TIMEOUT);
 	while(LPC_I2C->STAT != I2C_I2STAT_M_RX_DAT_ACK){
 		if(VTimerIsFired(I2CTimerID)) {
-			UART_SendString("Fail6\r\n\t");
+			//UART_SendString("Fail6\r\n\t");
 			break;
 		}
 	}
@@ -277,7 +277,7 @@ void I2C_ReadBytes(uint8_t address, uint8_t* data,uint8_t length){
 		VTimerSet(I2CTimerID,I2C_TIMEOUT);
 		while(LPC_I2C->STAT != I2C_I2STAT_M_RX_DAT_ACK){
 			if(VTimerIsFired(I2CTimerID)) {
-				UART_SendString("Fail7\r\n\t");
+				//UART_SendString("Fail7\r\n\t");
 				break;
 			}
 		}

@@ -31,7 +31,9 @@
 #define GATE_OPENED				0
 #define GATE_CLOSED				1
 
-#define EEPROM_CYCLE_COUNTER_ADDRESS	0
+#define EEPROM_CHECK_COUNTER_ADDRESS	0
+#define EEPROM_PROTECT_INDEX_ADDRESS	1
+#define EEPROM_CYCLE_COUNTER_ADDRESS	2
 
 void System_Init();
 void System_Running();
@@ -46,7 +48,9 @@ uint8_t CarHitDetection();
 void ClearCarHitFlag();
 void LCD_DisplayCurrent(uint16_t value);
 void LCD_DisplayCounter(uint32_t value);
-void EEPROMWriteCycleCounter(uint32_t _value);
-uint32_t EEPROMReadCycleCounter();
+void LcdPrintVersion(uint32_t version);
+
+void EEPROMWriteCycleCounter(uint8_t address,uint32_t _value);
+uint32_t EEPROMReadCycleCounter(uint8_t address);
 
 #endif /* INC_APPLICATION_H_ */
