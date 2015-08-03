@@ -15,7 +15,7 @@
 #include "EEPROM.h"
 #include "LCD.h"
 
-#define CURRENT_VERSION		3
+#define CURRENT_VERSION		7
 
 #define TIME_CHECK_CARHIT	300
 
@@ -36,7 +36,6 @@ uint8_t ProtectIndexTemp = 0;
 uint32_t VersionNumber = CURRENT_VERSION;
 
 void System_Init(){
-	uint8_t index = 0;
 	uint8_t dummy_data[5] = {0,0,0,0,0};
 	VTimer_MotorTotalTimeout = VTimerGetID();
 	VTimer_MotorDelayTimeout = VTimerGetID();
@@ -47,6 +46,7 @@ void System_Init(){
 		EEPROM_WriteByte(EEPROM_PROTECT_INDEX_ADDRESS,2);
 		DelayMs(10);
 		EEPROMWriteCycleCounter(EEPROM_CYCLE_COUNTER_ADDRESS,0);
+		DelayMs(10);
 	}
 	//EEPROM_WriteByte(EEPROM_PROTECT_INDEX_ADDRESS,2);
 	//DelayMs(10);
@@ -86,6 +86,7 @@ void System_Init(){
 
 uint8_t SystemState = WAIT_BUTTON;
 uint8_t CloseWhenOpenFlag = 0;
+uint8_t OpenWhenCloseFlag = 0;
 uint8_t OpenSuccess = 0;
 uint8_t CloseSuccess = 0;
 uint8_t dipSW23_value = 0;
@@ -138,29 +139,35 @@ void System_Running(){
 	switch (SystemState){
 		case WAIT_BUTTON:
 			if (UP_Button_Pressed()){
-				LcdPrintString(0,0,"UP");
-				FAN_TurnOn();
-				Motor_Forward();
-				VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-				ResetCounterTimer();
-				VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
-				SystemState = LEVER_MOVING_UP;
-				CalculateCurrentValue();
+				if (!LM_UP_Pressed()){
+					FAN_TurnOn();
+					LcdPrintString(0,0,"UP");
+					Motor_Forward();
+					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+					ResetCounterTimer();
+					VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
+					SystemState = LEVER_MOVING_UP;
+					CalculateCurrentValue();
+				}
+				else {
+					LcdPrintString(0,0,"__");
+					Motor_Stop();
+				}
 			}
 			else if (DOWN_Button_Pressed()){
-
-				LcdPrintString(0,0,"DW");
-				FAN_TurnOn();
-				VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
-				SystemState = LEVER_WAIT_MOVE_DOWN;
+				if (!LM_DOWN_Pressed()){
+					FAN_TurnOn();
+					VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
+					SystemState = WAIT_OBJECT_REMOVE;
+				}
 
 			}
 			else if (SEN2HoldFlag == 0){
 				if (!(SEN2_Pressed())){
-					LcdPrintString(0,0,"DW");
+					//LcdPrintString(0,0,"DW");
 					FAN_TurnOn();
 					VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
-					SystemState = LEVER_WAIT_MOVE_DOWN;
+					SystemState = WAIT_OBJECT_REMOVE;
 				}
 			}
 			else if (ObjectDetectFlag == 1){
@@ -169,9 +176,32 @@ void System_Running(){
 			break;
 		case LEVER_MOVING_UP:
 			if (VTimerIsFired(VTimer_MotorTotalTimeout)){
-				LCD_PrintTime(2,0,GetCounterTimer());
-				SystemState = INCREASE_COUNTER;
 				Motor_Stop();
+				LcdPrintString(0,0,"__");
+				if (ObjectDetectFlag == 1){
+					if (SEN1State == SEN1_STATE_NC){
+						if (SEN1_Pressed()){	// Object is removed
+							VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
+							SystemState = LEVER_WAIT_MOVE_DOWN;
+							ObjectDetectFlag = 0;
+							break;
+						}
+					}
+					else if (SEN1State == SEN1_STATE_NO){
+						if (!SEN1_Pressed()){	// Object is removed
+							VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
+							SystemState = LEVER_WAIT_MOVE_DOWN;
+							ObjectDetectFlag = 0;
+							break;
+						}
+					}
+				}
+				else {
+					LCD_PrintTime(2,0,GetCounterTimer());
+					SystemState = INCREASE_COUNTER;
+					Motor_Stop();
+					LcdPrintString(0,0,"__");
+				}
 				break;
 			}
 			if ((LM_UP_Pressed())){
@@ -211,11 +241,23 @@ void System_Running(){
 			}
 			break;
 		case LEVER_WAIT_MOVE_DOWN:
+			if (UP_Button_Pressed()){
+				OpenWhenCloseFlag = 1;
+			}
+			else if (DOWN_Button_Pressed()|| (!SEN2_Pressed())){
+				OpenWhenCloseFlag = 0;
+			}
 			if (VTimerIsFired(VTimer_MotorDelayTimeout)){
 				ResetCounterTimer();
 				VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-				LcdPrintString(0,0,"DW");
-				Motor_Reverse();
+				if ((!LM_DOWN_Pressed())){
+					LcdPrintString(0,0,"DW");
+					Motor_Reverse();
+				}
+				else {
+					LcdPrintString(0,0,"__");
+					Motor_Stop();
+				}
 				CalculateCurrentValue();
 				VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
 				SystemState = LEVER_MOVE_DOWN;
@@ -256,10 +298,16 @@ void System_Running(){
 			}
 			if (SEN1State == SEN1_STATE_NC){
 				if (!SEN1_Pressed()){	// Detect object
-					Motor_Forward();
+					if (LM_UP_Pressed()||LM_DOWN_Pressed()){
+						Motor_Stop();
+					}
+					else {
+						Motor_Forward();
+					}
 					LcdPrintString(0,0,"UP");
 					SystemState = LEVER_MOVING_UP;
 					ObjectDetectFlag = 1;
+					CloseWhenOpenFlag = 1;
 					break;
 				}
 				else {
@@ -268,10 +316,17 @@ void System_Running(){
 			}
 			else if (SEN1State == SEN1_STATE_NO){
 				if (SEN1_Pressed()){	// Detect object
-					Motor_Forward();
-					LcdPrintString(0,0,"UP");
+					if (LM_UP_Pressed()||LM_DOWN_Pressed()){
+						LcdPrintString(0,0,"__");
+						Motor_Stop();
+					}
+					else {
+						LcdPrintString(0,0,"UP");
+						Motor_Forward();
+					}
 					SystemState = LEVER_MOVING_UP;
 					ObjectDetectFlag = 1;
+					CloseWhenOpenFlag = 1;
 					break;
 				}
 				else {
@@ -304,14 +359,18 @@ void System_Running(){
 			}
 			break;
 		case REACH_UP_LIMIT:
+			Motor_Stop();
 			if (CloseWhenOpenFlag == 1){
 				VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
-				SystemState = LEVER_WAIT_MOVE_DOWN;
+				SystemState = WAIT_OBJECT_REMOVE;
+				Motor_Stop();
+				LcdPrintString(0,0,"__");
 				CloseWhenOpenFlag = 0;
 				ObjectDetectFlag = 0;
 			}
 			else if (CloseWhenOpenFlag == 0){
 				Motor_Stop();
+				LcdPrintString(0,0,"__");
 				SystemState = INCREASE_COUNTER;
 			}
 			else if (ObjectDetectFlag == 1){
@@ -320,8 +379,21 @@ void System_Running(){
 			break;
 		case REACH_DOWN_LIMIT:
 			Motor_Stop();
-			FAN_TurnOff(60000);
-			SystemState = RESET_VALUE;
+			if (OpenWhenCloseFlag == 1){
+				OpenWhenCloseFlag = 0;
+				LcdPrintString(0,0,"UP");
+				Motor_Forward();
+				VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+				ResetCounterTimer();
+				VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
+				CalculateCurrentValue();
+				SystemState = LEVER_MOVING_UP;
+			}
+			else {
+				Motor_Stop();
+				FAN_TurnOff(60000);
+				SystemState = RESET_VALUE;
+			}
 			break;
 		case CAR_HIT_DETECT_UP:
 			break;
@@ -331,13 +403,10 @@ void System_Running(){
 			if (ObjectDetectFlag == 0){
 				TotalCounter ++;
 				if ((TotalCounter % 500000) == 0){
-					UART_SendString("ADD ++\r\n\t");
 					ProtectIndexTemp = ProtectIndexTemp + 4;
 					if (ProtectIndexTemp > 200){
 						ProtectIndexTemp = 2;
 					}
-					UART_SendNumber(ProtectIndexTemp);
-					UART_SendString("\r\n\t");
 					EEPROM_WriteByte(EEPROM_PROTECT_INDEX_ADDRESS,ProtectIndexTemp);
 					DelayMs(10);
 				}
