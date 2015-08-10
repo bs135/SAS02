@@ -11,7 +11,7 @@
 uint8_t InputValue[4] = {0,0,0,0};
 uint8_t DipSWValue[4] = {0,0,0,0};
 uint8_t SenValue[4] = {0,0,0,0};
-
+uint8_t DownSwitchEdgeStatus = 0;
 //uint8_t sen1Condition = NO_CONDITION;
 
 void Input_InitController(){
@@ -54,10 +54,14 @@ void Input_Service(){
 		}
 
 		if (Chip_GPIO_GetPinState(LPC_GPIO,BUTTON_PORT,BUTTON_DOWN_PIN) == FALSE){
+			DownSwitchEdgeStatus = FALLING_EDGE;
 			LED_TurnOnDWSWLED();
 			InputValue[1] |= (1<<BUTTON_DOWN_INDEX);
 		}
 		else {
+			if (DownSwitchEdgeStatus == FALLING_EDGE){
+				DownSwitchEdgeStatus = RISING_EDGE;
+			}
 			LED_TurnOffDWSWLED();
 			InputValue[1] &= ~(1<<BUTTON_DOWN_INDEX);
 		}
@@ -125,11 +129,9 @@ void Input_Service(){
 		DipSWValue[3] = DipSWValue[2];
 		DipSWValue[2] = DipSWValue[1];
 		if (( Chip_GPIO_GetPortValue(LPC_GPIO,DIPSW_1_PORT) & (1<<DIPSW_1_PIN)) == 0){
-			//LcdPrintString(11,1,"sNC");
 			DipSWValue[1] |= (1<<DIPSW1_INDEX);
 		}
 		else {
-			//LcdPrintString(11,1,"sNO");
 			DipSWValue[1] &= ~(1<<DIPSW1_INDEX);
 		}
 		if (( Chip_GPIO_GetPortValue(LPC_GPIO,DIPSW_2_PORT) & (1<<DIPSW_2_PIN)) == 0){
@@ -184,6 +186,10 @@ uint8_t DOWN_Button_Pressed(){
 	}
 	else return FALSE;
 }
+uint8_t DOWN_GetEdgeStatus(){
+	return DownSwitchEdgeStatus;
+}
+
 uint8_t SWITCH_Pressed(){
 	if (InputValue[0] & (1<<SWITCH_INDEX)){
 		return TRUE;

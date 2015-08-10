@@ -140,9 +140,9 @@ void System_Running(){
 		case WAIT_BUTTON:
 			if (UP_Button_Pressed()){
 				if (!LM_UP_Pressed()){
-					FAN_TurnOn();
 					LcdPrintString(0,0,"UP");
 					Motor_Forward();
+					FAN_TurnOn();
 					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
 					ResetCounterTimer();
 					VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
@@ -154,9 +154,11 @@ void System_Running(){
 					Motor_Stop();
 				}
 			}
-			else if (DOWN_Button_Pressed()){
+			//else if (DOWN_Button_Pressed()){
+			else if (DOWN_GetEdgeStatus() == RISING_EDGE){
+				DownSwitchEdgeStatus =  HIGH_NO_EDGE;
 				if (!LM_DOWN_Pressed()){
-					FAN_TurnOn();
+					//FAN_TurnOn();
 					VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
 					SystemState = WAIT_OBJECT_REMOVE;
 				}
@@ -253,6 +255,7 @@ void System_Running(){
 				if ((!LM_DOWN_Pressed())){
 					LcdPrintString(0,0,"DW");
 					Motor_Reverse();
+					FAN_TurnOn();
 				}
 				else {
 					LcdPrintString(0,0,"__");
@@ -287,8 +290,10 @@ void System_Running(){
 				SystemState = RESET_VALUE;
 				break;
 			}
-			if (UP_Button_Pressed()){
+			if (UP_Button_Pressed()|| (DOWN_Button_Pressed())){ // DW falling
+				DownSwitchEdgeStatus =  HIGH_NO_EDGE;
 				Motor_Forward();
+				FAN_TurnOn();
 				LcdPrintString(0,0,"UP");
 				ResetCounterTimer();
 				VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
@@ -303,6 +308,7 @@ void System_Running(){
 					}
 					else {
 						Motor_Forward();
+						FAN_TurnOn();
 					}
 					LcdPrintString(0,0,"UP");
 					SystemState = LEVER_MOVING_UP;
@@ -323,6 +329,7 @@ void System_Running(){
 					else {
 						LcdPrintString(0,0,"UP");
 						Motor_Forward();
+						FAN_TurnOn();
 					}
 					SystemState = LEVER_MOVING_UP;
 					ObjectDetectFlag = 1;
