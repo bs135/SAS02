@@ -16,7 +16,6 @@ uint16_t maxValue = 0;
 uint16_t currentValue = 0;
 int32_t value_temp = 0;
 uint8_t calculate_done = 0;
-
 void ADC_InitController(){
 	//Chip_IOCON_PinMuxSet(LPC_IOCON, IOCON_PIO0_11, FUNC2);
 	Chip_IOCON_PinMuxSet(LPC_IOCON, IOCON_PIO1_0, FUNC2);
@@ -32,9 +31,6 @@ void ADC_InitController(){
 	Chip_ADC_SetStartMode(LPC_ADC, ADC_START_NOW, ADC_TRIGGERMODE_RISING);
 	//Chip_ADC_EnableChannel(LPC_ADC, ADC_CH2, ENABLE);
 	//Chip_ADC_SetBurstCmd(LPC_ADC,ENABLE);
-
-}
-void ADCService(){
 
 }
 

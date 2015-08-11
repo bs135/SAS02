@@ -54,7 +54,9 @@ void Input_Service(){
 		}
 
 		if (Chip_GPIO_GetPinState(LPC_GPIO,BUTTON_PORT,BUTTON_DOWN_PIN) == FALSE){
-			DownSwitchEdgeStatus = FALLING_EDGE;
+			if (DownSwitchEdgeStatus != FALLING_EDGE){
+				DownSwitchEdgeStatus = FALLING_EDGE;
+			}
 			LED_TurnOnDWSWLED();
 			InputValue[1] |= (1<<BUTTON_DOWN_INDEX);
 		}

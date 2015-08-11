@@ -36,18 +36,19 @@ uint8_t ProtectIndexTemp = 0;
 uint32_t VersionNumber = CURRENT_VERSION;
 
 void System_Init(){
-	uint8_t dummy_data[5] = {0,0,0,0,0};
+	//uint8_t dummy_data[5] = {0,0,0,0,0};
 	VTimer_MotorTotalTimeout = VTimerGetID();
 	VTimer_MotorDelayTimeout = VTimerGetID();
 	VTimer_CarhitDelayTimeout = VTimerGetID();
-	if (EEPROM_ReadByte(EEPROM_CHECK_COUNTER_ADDRESS) != 0x55){
+	EEPROMFirstCheck();
+	/*if (EEPROM_ReadByte(EEPROM_CHECK_COUNTER_ADDRESS) != 0x55){
 		EEPROM_WriteByte(EEPROM_CHECK_COUNTER_ADDRESS,0x55);
 		DelayMs(10);
 		EEPROM_WriteByte(EEPROM_PROTECT_INDEX_ADDRESS,2);
 		DelayMs(10);
 		EEPROMWriteCycleCounter(EEPROM_CYCLE_COUNTER_ADDRESS,0);
 		DelayMs(10);
-	}
+	}*/
 	//EEPROM_WriteByte(EEPROM_PROTECT_INDEX_ADDRESS,2);
 	//DelayMs(10);
 	ProtectIndexTemp = EEPROM_ReadByte(EEPROM_PROTECT_INDEX_ADDRESS);
@@ -80,7 +81,6 @@ void System_Init(){
 	ClearCarHitFlag();
 	FAN_TurnOff(1);
 	Motor_Stop();
-
 }
 
 
@@ -93,6 +93,7 @@ uint8_t dipSW23_value = 0;
 uint8_t ObjectDetectFlag = 0;
 uint8_t SEN1State = 0;
 uint8_t SEN2Flag = 0;
+uint8_t UpdateLCDFlag = 0;
 void System_Running(){
 	if (SWITCH_Pressed()){
 		LCD_Clear();
@@ -104,38 +105,46 @@ void System_Running(){
 		LCD_DisplayCounter(TotalCounter);
 		LCD_DisplayCurrent(GetCurrentValue());
 	}
-	if (SystemState == WAIT_BUTTON){
-			if ((DIPSW_GetValue() & (1<<DIPSW1_INDEX)) == (1<<DIPSW1_INDEX)){	// DIPSW1 = ON , SEN1 = N/C
+	//if (SystemState == WAIT_BUTTON){
+		if ((DIPSW_GetValue() & (1<<DIPSW1_INDEX)) == (1<<DIPSW1_INDEX)){	// DIPSW1 = ON , SEN1 = N/C
+			if (SEN1State == SEN1_STATE_NO) UpdateLCDFlag= 1;
 			SEN1State = SEN1_STATE_NC;
-			LcdPrintString(11,1,"sNC");
+			//LcdPrintString(11,1,"sNC");
 		}
 		else {
+			if (SEN1State == SEN1_STATE_NC) UpdateLCDFlag= 1;
 			SEN1State = SEN1_STATE_NO;
-			LcdPrintString(11,1,"sNO");
+			//LcdPrintString(11,1,"sNO");
 		}
 
 		if ((DIPSW_GetValue() & (1<<DIPSW3_INDEX)) == (1<<DIPSW3_INDEX)){	// ON
+			if (CloseDelayTimer != 0) UpdateLCDFlag= 1;
 			CloseDelayTimer = 0;
-			LcdPrintString(8,1,"N-");
+			//LcdPrintString(8,1,"N-");
 		}
 		else if ((DIPSW_GetValue() & (1<<DIPSW2_INDEX)) == (1<<DIPSW2_INDEX)){ // ON
+			if (CloseDelayTimer != 3000) UpdateLCDFlag= 1;
 			CloseDelayTimer = 3000;
-			LcdPrintString(8,1,"D3");
+			//LcdPrintString(8,1,"D3");
 		}
 		else {
+			if (CloseDelayTimer != 1000) UpdateLCDFlag= 1;
 			CloseDelayTimer = 1000;
-			LcdPrintString(8,1,"D1");
+			//LcdPrintString(8,1,"D1");
 		}
 
 		if ((DIPSW_GetValue() & (1<<DIPSW4_INDEX)) == (1<<DIPSW4_INDEX)){	// N/C
+			if (MotorTotalTimer != 3000) UpdateLCDFlag= 1;
 			MotorTotalTimer = 3000;
-			LcdPrintString(5,1,"3S");
+			//LcdPrintString(5,1,"3S");
 		}
 		else {
+			if (MotorTotalTimer != 6000) UpdateLCDFlag= 1;
 			MotorTotalTimer = 6000;
-			LcdPrintString(5,1,"6S");
+			//LcdPrintString(5,1,"6S");
 		}
-	}
+	//}
+	LCD_DisplayInfo();
 	switch (SystemState){
 		case WAIT_BUTTON:
 			if (UP_Button_Pressed()){
@@ -239,6 +248,10 @@ void System_Running(){
 			}
 			break;
 		case WAIT_OBJECT_REMOVE:
+			if (UP_Button_Pressed()){
+				SystemState = WAIT_BUTTON;
+				break;
+			}
 			if (SEN1State == SEN1_STATE_NC){
 				if (SEN1_Pressed()){	// Object is removed
 					VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
@@ -286,7 +299,8 @@ void System_Running(){
 				SystemState = RESET_VALUE;
 				break;
 			}
-			if (UP_Button_Pressed()|| (DOWN_Button_Pressed())){ // DW falling
+			if (UP_Button_Pressed() || (DOWN_GetEdgeStatus() == FALLING_EDGE)){ // DW falling
+			//if (UP_Button_Pressed()){
 				DownSwitchEdgeStatus =  HIGH_NO_EDGE;
 				Motor_Forward();
 				FAN_TurnOn();
@@ -363,18 +377,18 @@ void System_Running(){
 			break;
 		case REACH_UP_LIMIT:
 			Motor_Stop();
-			if (CloseWhenOpenFlag == 1){
+			if ((CloseWhenOpenFlag == 0)|| (DOWN_Button_Pressed())){
+				Motor_Stop();
+				LcdPrintString(0,0,"__");
+				SystemState = INCREASE_COUNTER;
+			}
+			else if (CloseWhenOpenFlag == 1){
 				VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
 				SystemState = WAIT_OBJECT_REMOVE;
 				Motor_Stop();
 				LcdPrintString(0,0,"__");
 				CloseWhenOpenFlag = 0;
 				ObjectDetectFlag = 0;
-			}
-			else if (CloseWhenOpenFlag == 0){
-				Motor_Stop();
-				LcdPrintString(0,0,"__");
-				SystemState = INCREASE_COUNTER;
 			}
 			else if (ObjectDetectFlag == 1){
 				SystemState = WAIT_OBJECT_REMOVE;
@@ -430,6 +444,7 @@ void System_Running(){
 			CloseWhenOpenFlag = 0;
 			SEN2HoldFlag = 1;
 			SystemState = WAIT_BUTTON;
+			DownSwitchEdgeStatus =  HIGH_NO_EDGE;
 			break;
 		default:
 			break;
@@ -458,6 +473,34 @@ uint8_t CarHitDetection(){
 }
 void ClearCarHitFlag(){
 	carhitDetectFlag = 0;
+}
+
+void LCD_DisplayInfo(){
+	if (UpdateLCDFlag == 1){
+		if (SEN1State == SEN1_STATE_NC){
+			LcdPrintString(11,1,"sNC");
+		}
+		else if (SEN1State == SEN1_STATE_NO){
+			LcdPrintString(11,1,"sNO");
+		}
+		if (CloseDelayTimer == 0){
+			LcdPrintString(8,1,"N-");
+		}
+		else if (CloseDelayTimer == 1000){
+			LcdPrintString(8,1,"D1");
+		}
+		else if (CloseDelayTimer == 3000){
+			LcdPrintString(8,1,"D3");
+		}
+
+		if (MotorTotalTimer == 3000){\
+			LcdPrintString(5,1,"3S");
+		}
+		else if (MotorTotalTimer == 6000){\
+			LcdPrintString(5,1,"6S");
+		}
+		UpdateLCDFlag = 0;
+	}
 }
 
 void LCD_DisplayCurrent(uint16_t value){
@@ -490,6 +533,28 @@ void LcdPrintVersion(uint32_t version){
 	LcdPutChar('0' + ((version/100) %10));
 	LcdPutChar('0' + ((version/10) %10));
 	LcdPutChar('0' + (version %10));
+}
+
+void EEPROMFirstCheck(){
+	uint8_t retry = 0;
+	uint8_t temp1, temp2;
+	temp1 = 1;
+	temp2 = 2;
+	do {
+		temp1 = EEPROM_ReadByte(EEPROM_CHECK_COUNTER_ADDRESS);
+		DelayMs(10);
+		temp2 = EEPROM_ReadByte(EEPROM_CHECK_COUNTER_ADDRESS);
+		DelayMs(10);
+		retry ++;
+	} while ((temp1 != temp2) && (retry < 3));
+	if ((temp1 != 0x55) && (temp2 != 0x55)){
+		EEPROM_WriteByte(EEPROM_CHECK_COUNTER_ADDRESS,0x55);
+		DelayMs(10);
+		EEPROM_WriteByte(EEPROM_PROTECT_INDEX_ADDRESS,2);
+		DelayMs(10);
+		EEPROMWriteCycleCounter(EEPROM_CYCLE_COUNTER_ADDRESS,0);
+		DelayMs(10);
+	}
 }
 
 void EEPROMWriteCycleCounter(uint8_t address,uint32_t _value){

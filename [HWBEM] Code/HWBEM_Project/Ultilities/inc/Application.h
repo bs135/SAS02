@@ -46,10 +46,11 @@ void ResetCounterTimer();
 uint32_t GetCounterTimer();
 uint8_t CarHitDetection();
 void ClearCarHitFlag();
+void LCD_DisplayInfo();
 void LCD_DisplayCurrent(uint16_t value);
 void LCD_DisplayCounter(uint32_t value);
 void LcdPrintVersion(uint32_t version);
-
+void EEPROMFirstCheck();
 void EEPROMWriteCycleCounter(uint8_t address,uint32_t _value);
 uint32_t EEPROMReadCycleCounter(uint8_t address);
 
