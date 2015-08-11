@@ -158,16 +158,12 @@ void System_Running(){
 			else if (DOWN_GetEdgeStatus() == RISING_EDGE){
 				DownSwitchEdgeStatus =  HIGH_NO_EDGE;
 				if (!LM_DOWN_Pressed()){
-					//FAN_TurnOn();
 					VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
 					SystemState = WAIT_OBJECT_REMOVE;
 				}
-
 			}
 			else if (SEN2HoldFlag == 0){
 				if (!(SEN2_Pressed())){
-					//LcdPrintString(0,0,"DW");
-					FAN_TurnOn();
 					VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
 					SystemState = WAIT_OBJECT_REMOVE;
 				}
@@ -228,7 +224,7 @@ void System_Running(){
 					carhitDetectFlag = 0;
 				}
 			}
-			if (DOWN_Button_Pressed()|| (!SEN2_Pressed())){
+			if (DOWN_Button_Pressed() || (!SEN2_Pressed())){
 				ResetCounterTimer();
 				VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
 				CloseWhenOpenFlag = 1;
@@ -240,30 +236,6 @@ void System_Running(){
 					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
 					CloseWhenOpenFlag = 0;
 				}
-			}
-			break;
-		case LEVER_WAIT_MOVE_DOWN:
-			if (UP_Button_Pressed()){
-				OpenWhenCloseFlag = 1;
-			}
-			else if (DOWN_Button_Pressed()|| (!SEN2_Pressed())){
-				OpenWhenCloseFlag = 0;
-			}
-			if (VTimerIsFired(VTimer_MotorDelayTimeout)){
-				ResetCounterTimer();
-				VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-				if ((!LM_DOWN_Pressed())){
-					LcdPrintString(0,0,"DW");
-					Motor_Reverse();
-					FAN_TurnOn();
-				}
-				else {
-					LcdPrintString(0,0,"__");
-					Motor_Stop();
-				}
-				CalculateCurrentValue();
-				VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
-				SystemState = LEVER_MOVE_DOWN;
 			}
 			break;
 		case WAIT_OBJECT_REMOVE:
@@ -284,6 +256,30 @@ void System_Running(){
 				}
 			}
 			break;
+		case LEVER_WAIT_MOVE_DOWN:
+				if (UP_Button_Pressed()){
+					OpenWhenCloseFlag = 1;
+				}
+				else if (DOWN_Button_Pressed() || (!SEN2_Pressed())){
+					OpenWhenCloseFlag = 0;
+				}
+				if (VTimerIsFired(VTimer_MotorDelayTimeout)){
+					ResetCounterTimer();
+					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+					if ((!LM_DOWN_Pressed())){
+						LcdPrintString(0,0,"DW");
+						Motor_Reverse();
+						FAN_TurnOn();
+					}
+					else {
+						LcdPrintString(0,0,"__");
+						Motor_Stop();
+					}
+					CalculateCurrentValue();
+					VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
+					SystemState = LEVER_MOVE_DOWN;
+				}
+				break;
 		case LEVER_MOVE_DOWN:
 			if (VTimerIsFired(VTimer_MotorTotalTimeout)){
 				LCD_PrintTime(2,0,GetCounterTimer());
