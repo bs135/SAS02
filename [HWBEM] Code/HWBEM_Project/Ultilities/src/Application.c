@@ -87,8 +87,6 @@ void System_Init(){
 uint8_t SystemState = WAIT_BUTTON;
 uint8_t CloseWhenOpenFlag = 0;
 uint8_t OpenWhenCloseFlag = 0;
-uint8_t OpenSuccess = 0;
-uint8_t CloseSuccess = 0;
 uint8_t dipSW23_value = 0;
 uint8_t ObjectDetectFlag = 0;
 uint8_t SEN1State = 0;
@@ -105,117 +103,104 @@ void System_Running(){
 		LCD_DisplayCounter(TotalCounter);
 		LCD_DisplayCurrent(GetCurrentValue());
 	}
-	//if (SystemState == WAIT_BUTTON){
-		if ((DIPSW_GetValue() & (1<<DIPSW1_INDEX)) == (1<<DIPSW1_INDEX)){	// DIPSW1 = ON , SEN1 = N/C
-			if (SEN1State == SEN1_STATE_NO) UpdateLCDFlag= 1;
-			SEN1State = SEN1_STATE_NC;
-			//LcdPrintString(11,1,"sNC");
-		}
-		else {
-			if (SEN1State == SEN1_STATE_NC) UpdateLCDFlag= 1;
-			SEN1State = SEN1_STATE_NO;
-			//LcdPrintString(11,1,"sNO");
-		}
 
-		if ((DIPSW_GetValue() & (1<<DIPSW3_INDEX)) == (1<<DIPSW3_INDEX)){	// ON
-			if (CloseDelayTimer != 0) UpdateLCDFlag= 1;
-			CloseDelayTimer = 0;
-			//LcdPrintString(8,1,"N-");
-		}
-		else if ((DIPSW_GetValue() & (1<<DIPSW2_INDEX)) == (1<<DIPSW2_INDEX)){ // ON
-			if (CloseDelayTimer != 3000) UpdateLCDFlag= 1;
-			CloseDelayTimer = 3000;
-			//LcdPrintString(8,1,"D3");
+	if ((DIPSW_GetValue() & (1<<DIPSW1_INDEX)) == (1<<DIPSW1_INDEX)){	// DIPSW1 = ON , SEN1 = N/C
+		if (SEN1State == SEN1_STATE_NO) UpdateLCDFlag= 1;
+		SEN1State = SEN1_STATE_NC;
+		if (!SEN1_Pressed()){	// Detect object
+			ObjectDetectFlag = 1;
 		}
 		else {
-			if (CloseDelayTimer != 1000) UpdateLCDFlag= 1;
-			CloseDelayTimer = 1000;
-			//LcdPrintString(8,1,"D1");
+			ObjectDetectFlag = 0;
 		}
+	}
+	else {
+		if (SEN1State == SEN1_STATE_NC) UpdateLCDFlag= 1;
+		SEN1State = SEN1_STATE_NO;
+		if (SEN1_Pressed()){	// Detect object
+			ObjectDetectFlag = 1;
+		}
+		else {
+			ObjectDetectFlag = 0;
+		}
+	}
 
-		if ((DIPSW_GetValue() & (1<<DIPSW4_INDEX)) == (1<<DIPSW4_INDEX)){	// N/C
-			if (MotorTotalTimer != 3000) UpdateLCDFlag= 1;
-			MotorTotalTimer = 3000;
-			//LcdPrintString(5,1,"3S");
-		}
-		else {
-			if (MotorTotalTimer != 6000) UpdateLCDFlag= 1;
-			MotorTotalTimer = 6000;
-			//LcdPrintString(5,1,"6S");
-		}
-	//}
+	if ((DIPSW_GetValue() & (1<<DIPSW3_INDEX)) == (1<<DIPSW3_INDEX)){	// ON
+		if (CloseDelayTimer != 0) UpdateLCDFlag= 1;
+		CloseDelayTimer = 0;
+	}
+	else if ((DIPSW_GetValue() & (1<<DIPSW2_INDEX)) == (1<<DIPSW2_INDEX)){ // ON
+		if (CloseDelayTimer != 3000) UpdateLCDFlag= 1;
+		CloseDelayTimer = 3000;
+	}
+	else {
+		if (CloseDelayTimer != 1000) UpdateLCDFlag= 1;
+		CloseDelayTimer = 1000;
+	}
+
+	if ((DIPSW_GetValue() & (1<<DIPSW4_INDEX)) == (1<<DIPSW4_INDEX)){	// N/C
+		if (MotorTotalTimer != 3000) UpdateLCDFlag= 1;
+		MotorTotalTimer = 3000;
+	}
+	else {
+		if (MotorTotalTimer != 6000) UpdateLCDFlag= 1;
+		MotorTotalTimer = 6000;
+	}
 	LCD_DisplayInfo();
 	switch (SystemState){
 		case WAIT_BUTTON:
-			if (UP_Button_Pressed()){
-				if (!LM_UP_Pressed()){
-					LcdPrintString(0,0,"UP");
-					Motor_Forward();
-					FAN_TurnOn();
-					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-					ResetCounterTimer();
-					VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
-					SystemState = LEVER_MOVING_UP;
-					CalculateCurrentValue();
-				}
-				else {
-					LcdPrintString(0,0,"__");
-					Motor_Stop();
-				}
-			}
-			//else if (DOWN_Button_Pressed()){
-			else if (DOWN_GetEdgeStatus() == RISING_EDGE){
-				DownSwitchEdgeStatus =  HIGH_NO_EDGE;
-				if (!LM_DOWN_Pressed()){
-					VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
-					SystemState = WAIT_OBJECT_REMOVE;
+			if (UpSwitchLevel == HIGH_LEVEL){	// falling edge
+				if (UP_Button_Pressed()){
+					if (!LM_UP_Pressed()){
+						LcdPrintString(0,0,"UP");
+						Motor_Forward();
+						FAN_TurnOn();
+						VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+						ResetCounterTimer();
+						VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
+						SystemState = LEVER_MOVING_UP;
+						CalculateCurrentValue();
+					}
+					else {
+						LcdPrintString(0,0,"__");
+						Motor_Stop();
+					}
 				}
 			}
-			else if (SEN2HoldFlag == 0){
-				if (!(SEN2_Pressed())){
-					VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
-					SystemState = WAIT_OBJECT_REMOVE;
+			if (DownSwitchLevel == LOW_LEVEL){	//DW_SW rising edge
+				if (DOWN_Button_Released()){
+					if (!LM_DOWN_Pressed()){
+						VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
+						SystemState = WAIT_OBJECT_REMOVE;
+					}
 				}
 			}
-			else if (ObjectDetectFlag == 1){
+			/*if (Sen2Level == HIGH_LEVEL){	// Falling edge
+				if (SEN2_Pressed()){
+					if (!LM_DOWN_Pressed()){
+						VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
+						SystemState = WAIT_OBJECT_REMOVE;
+					}
+				}
+			}*/
+			if (CloseWhenOpenFlag == 1){
 				SystemState = WAIT_OBJECT_REMOVE;
 			}
 			break;
 		case LEVER_MOVING_UP:
-			if (VTimerIsFired(VTimer_MotorTotalTimeout)){
+			if (VTimerIsFired(VTimer_MotorTotalTimeout)){	// hết timeout mà chưa đụng LM_UP
 				Motor_Stop();
 				LcdPrintString(0,0,"__");
-				if (ObjectDetectFlag == 1){
-					if (SEN1State == SEN1_STATE_NC){
-						if (SEN1_Pressed()){	// Object is removed
-							VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
-							SystemState = LEVER_WAIT_MOVE_DOWN;
-							ObjectDetectFlag = 0;
-							break;
-						}
-					}
-					else if (SEN1State == SEN1_STATE_NO){
-						if (!SEN1_Pressed()){	// Object is removed
-							VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
-							SystemState = LEVER_WAIT_MOVE_DOWN;
-							ObjectDetectFlag = 0;
-							break;
-						}
-					}
-				}
-				else {
-					LCD_PrintTime(2,0,GetCounterTimer());
-					SystemState = INCREASE_COUNTER;
-					Motor_Stop();
-					LcdPrintString(0,0,"__");
-				}
+				LCD_PrintTime(2,0,GetCounterTimer());		// hiển thị thời gian
+				SystemState = INCREASE_COUNTER;
 				break;
 			}
-			if ((LM_UP_Pressed())){
-				LCD_PrintTime(2,0,GetCounterTimer());
+			if ((LM_UP_Pressed())){							// đụng được LM_UP
+				LCD_PrintTime(2,0,GetCounterTimer());		// hiển thị thời gian
 				SystemState = REACH_UP_LIMIT;
 				break;
 			}
+
 			CalculateCurrentValue();
 			if (calculate_done == 1){
 				LCD_DisplayCurrent(GetCurrentValue());
@@ -233,9 +218,10 @@ void System_Running(){
 					carhitDetectFlag = 0;
 				}
 			}
+
 			if (DOWN_Button_Pressed() || (!SEN2_Pressed())){
-				ResetCounterTimer();
-				VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+				//ResetCounterTimer();
+				//VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
 				CloseWhenOpenFlag = 1;
 			}
 			else if (UP_Button_Pressed()){
@@ -248,35 +234,24 @@ void System_Running(){
 			}
 			break;
 		case WAIT_OBJECT_REMOVE:
-			if (UP_Button_Pressed()){
+			if (UP_Button_Pressed()){		// Hủy lệnh đi xuống
 				SystemState = WAIT_BUTTON;
-				break;
+				CloseWhenOpenFlag = 0;
 			}
-			if (SEN1State == SEN1_STATE_NC){
-				if (SEN1_Pressed()){	// Object is removed
-					VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
-					SystemState = LEVER_WAIT_MOVE_DOWN;
-					ObjectDetectFlag = 0;
-					break;
-				}
-			}
-			else if (SEN1State == SEN1_STATE_NO){
-				if (!SEN1_Pressed()){	// Object is removed
-					VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
-					SystemState = LEVER_WAIT_MOVE_DOWN;
-					ObjectDetectFlag = 0;
-					break;
-				}
+			else if (ObjectDetectFlag == 0){	// Không có vật cản
+				VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
+				SystemState = LEVER_WAIT_MOVE_DOWN;
 			}
 			break;
 		case LEVER_WAIT_MOVE_DOWN:
-				if (UP_Button_Pressed()){
-					OpenWhenCloseFlag = 1;
+				if (UP_Button_Pressed()){	// Hủy lệnh đi xuống
+					SystemState = WAIT_BUTTON;
+					CloseWhenOpenFlag = 0;
 				}
-				else if (DOWN_Button_Pressed() || (!SEN2_Pressed())){
-					OpenWhenCloseFlag = 0;
-				}
-				if (VTimerIsFired(VTimer_MotorDelayTimeout)){
+				//else if (DOWN_Button_Pressed() || (!SEN2_Pressed())){
+				//	OpenWhenCloseFlag = 0;
+				//}
+				else if (VTimerIsFired(VTimer_MotorDelayTimeout)){	// hết timeout delay motor
 					ResetCounterTimer();
 					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
 					if ((!LM_DOWN_Pressed())){
@@ -294,60 +269,45 @@ void System_Running(){
 				}
 				break;
 		case LEVER_MOVE_DOWN:
-			if (VTimerIsFired(VTimer_MotorTotalTimeout)){
+			if (VTimerIsFired(VTimer_MotorTotalTimeout)){	// hết timeout mà chưa đụng DW_UP
 				LCD_PrintTime(2,0,GetCounterTimer());
+				CloseWhenOpenFlag = 0;
 				SystemState = RESET_VALUE;
 				break;
 			}
-			if (UP_Button_Pressed() || (DOWN_GetEdgeStatus() == FALLING_EDGE)){ // DW falling
-			//if (UP_Button_Pressed()){
-				DownSwitchEdgeStatus =  HIGH_NO_EDGE;
-				Motor_Forward();
-				FAN_TurnOn();
-				LcdPrintString(0,0,"UP");
-				ResetCounterTimer();
-				VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-				VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
-				SystemState = LEVER_MOVING_UP;
-				break;
-			}
-			if (SEN1State == SEN1_STATE_NC){
-				if (!SEN1_Pressed()){	// Detect object
-					if (LM_UP_Pressed()||LM_DOWN_Pressed()){
-						Motor_Stop();
-					}
-					else {
-						Motor_Forward();
-						FAN_TurnOn();
-					}
+			if (!(LM_UP_Pressed())){		// Nếu rào chắn không phải đang ở tại UP_LM
+				if (UP_Button_Pressed()){	// Hủy lệnh đi xuống
+					CloseWhenOpenFlag = 0;
+					Motor_Forward();		// Motor đi lên
+					FAN_TurnOn();
 					LcdPrintString(0,0,"UP");
+					ResetCounterTimer();
+					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+					VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
 					SystemState = LEVER_MOVING_UP;
-					ObjectDetectFlag = 1;
-					CloseWhenOpenFlag = 1;
 					break;
 				}
-				else {
-					ObjectDetectFlag = 0;
-				}
-			}
-			else if (SEN1State == SEN1_STATE_NO){
-				if (SEN1_Pressed()){	// Detect object
-					if (LM_UP_Pressed()||LM_DOWN_Pressed()){
-						LcdPrintString(0,0,"__");
-						Motor_Stop();
-					}
-					else {
-						LcdPrintString(0,0,"UP");
+				else if (DownSwitchLevel == HIGH_LEVEL){	// Cạnh xuống của tín hiện
+					if (DOWN_Button_Pressed()){
 						Motor_Forward();
 						FAN_TurnOn();
+						LcdPrintString(0,0,"UP");
+						ResetCounterTimer();
+						VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+						VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
+						SystemState = LEVER_MOVING_UP;
+						break;
 					}
-					SystemState = LEVER_MOVING_UP;
-					ObjectDetectFlag = 1;
-					CloseWhenOpenFlag = 1;
-					break;
 				}
-				else {
-					ObjectDetectFlag = 0;
+				else if (ObjectDetectFlag == 1){
+					Motor_Forward();
+					FAN_TurnOn();
+					LcdPrintString(0,0,"UP");
+					ResetCounterTimer();
+					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+					VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
+					SystemState = LEVER_MOVING_UP;
+					break;
 				}
 			}
 
@@ -369,7 +329,8 @@ void System_Running(){
 				}
 			}
 
-			if ((LM_DOWN_Pressed())){
+			if ((LM_DOWN_Pressed())){		// Đi xuống đụng DW_LM
+				CloseWhenOpenFlag = 0;
 				LCD_PrintTime(2,0,GetCounterTimer());
 				SystemState = REACH_DOWN_LIMIT;
 				break;
@@ -377,62 +338,32 @@ void System_Running(){
 			break;
 		case REACH_UP_LIMIT:
 			Motor_Stop();
-			if ((CloseWhenOpenFlag == 0)|| (DOWN_Button_Pressed())){
-				Motor_Stop();
-				LcdPrintString(0,0,"__");
-				SystemState = INCREASE_COUNTER;
-			}
-			else if (CloseWhenOpenFlag == 1){
-				VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
-				SystemState = WAIT_OBJECT_REMOVE;
-				Motor_Stop();
-				LcdPrintString(0,0,"__");
+			LcdPrintString(0,0,"__");
+			if (DownSwitchLevel == LOW_LEVEL){ // vẫn đè nút DOWN khi đụng UP_LM
 				CloseWhenOpenFlag = 0;
-				ObjectDetectFlag = 0;
 			}
-			else if (ObjectDetectFlag == 1){
-				SystemState = WAIT_OBJECT_REMOVE;
-			}
+			SystemState = INCREASE_COUNTER;
 			break;
 		case REACH_DOWN_LIMIT:
 			Motor_Stop();
-			if (OpenWhenCloseFlag == 1){
-				OpenWhenCloseFlag = 0;
-				LcdPrintString(0,0,"UP");
-				Motor_Forward();
-				VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-				ResetCounterTimer();
-				VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
-				CalculateCurrentValue();
-				SystemState = LEVER_MOVING_UP;
-			}
-			else {
-				Motor_Stop();
-				FAN_TurnOff(60000);
-				SystemState = RESET_VALUE;
-			}
-			break;
-		case CAR_HIT_DETECT_UP:
-			break;
-		case CAR_HIT_DETECT_DOWN:
-			break;
-		case INCREASE_COUNTER:
-			if (ObjectDetectFlag == 0){
-				TotalCounter ++;
-				if ((TotalCounter % 500000) == 0){
-					ProtectIndexTemp = ProtectIndexTemp + 4;
-					if (ProtectIndexTemp > 200){
-						ProtectIndexTemp = 2;
-					}
-					EEPROM_WriteByte(EEPROM_PROTECT_INDEX_ADDRESS,ProtectIndexTemp);
-					DelayMs(10);
-				}
-				EEPROMWriteCycleCounter(ProtectIndexTemp,TotalCounter);
-				LCD_DisplayCounter(TotalCounter);
-			}
+			//FAN_TurnOff(60000);
 			SystemState = RESET_VALUE;
 			break;
-
+		case INCREASE_COUNTER:
+			TotalCounter ++;
+			if ((TotalCounter % 500000) == 0){
+				ProtectIndexTemp = ProtectIndexTemp + 4;
+				if (ProtectIndexTemp > 200){
+					ProtectIndexTemp = 2;
+				}
+				EEPROM_WriteByte(EEPROM_PROTECT_INDEX_ADDRESS,ProtectIndexTemp);
+				DelayMs(10);
+			}
+			EEPROMWriteCycleCounter(ProtectIndexTemp,TotalCounter);
+			DelayMs(10);
+			LCD_DisplayCounter(TotalCounter);
+			SystemState = RESET_VALUE;
+			break;
 		case RESET_VALUE:
 			Motor_Stop();
 			FAN_TurnOff(60000);
@@ -441,10 +372,11 @@ void System_Running(){
 			LCD_DisplayCurrent(GetCurrentValue());
 			carhitDetectFlag = 0;
 			calculate_done = 0;
-			CloseWhenOpenFlag = 0;
-			SEN2HoldFlag = 1;
 			SystemState = WAIT_BUTTON;
-			DownSwitchEdgeStatus =  HIGH_NO_EDGE;
+			break;
+		case CAR_HIT_DETECT_UP:
+			break;
+		case CAR_HIT_DETECT_DOWN:
 			break;
 		default:
 			break;
@@ -461,7 +393,6 @@ void ResetCounterTimer(){
 uint32_t GetCounterTimer(){
 	return CounterTimer;
 }
-
 uint8_t CarHitDetection(){
 	if (carhitDetectFlag == 1){
 		if (GetCurrentValue() > CAR_HIT_CURRENT){
@@ -474,7 +405,6 @@ uint8_t CarHitDetection(){
 void ClearCarHitFlag(){
 	carhitDetectFlag = 0;
 }
-
 void LCD_DisplayInfo(){
 	if (UpdateLCDFlag == 1){
 		if (SEN1State == SEN1_STATE_NC){
@@ -502,7 +432,6 @@ void LCD_DisplayInfo(){
 		UpdateLCDFlag = 0;
 	}
 }
-
 void LCD_DisplayCurrent(uint16_t value){
 	LCD_GotoXY(0,1);
 	LcdPutChar('0' + ((value/1000) %10));
@@ -510,7 +439,6 @@ void LCD_DisplayCurrent(uint16_t value){
 	LcdPutChar('0' + ((value/100) %10));
 	LcdPutChar('A');
 }
-
 void LCD_DisplayCounter(uint32_t value){
 	LCD_GotoXY(8,0);
 	LcdPutChar('0' + ((value/10000000) %10));
@@ -522,7 +450,6 @@ void LCD_DisplayCounter(uint32_t value){
 	LcdPutChar('0' + ((value/10) %10));
 	LcdPutChar('0' + (value %10));
 }
-
 void LcdPrintVersion(uint32_t version){
 	LcdPrintString(0,0,"HWBEM v1.0");
 	LcdPrintString(0,1,"Fw:");
@@ -534,7 +461,6 @@ void LcdPrintVersion(uint32_t version){
 	LcdPutChar('0' + ((version/10) %10));
 	LcdPutChar('0' + (version %10));
 }
-
 void EEPROMFirstCheck(){
 	uint8_t retry = 0;
 	uint8_t temp1, temp2;
@@ -556,7 +482,6 @@ void EEPROMFirstCheck(){
 		DelayMs(10);
 	}
 }
-
 void EEPROMWriteCycleCounter(uint8_t address,uint32_t _value){
 	uint8_t temp[4];
 	temp[0] = (uint8_t)(_value >> 24) & 0xFF;
@@ -565,7 +490,6 @@ void EEPROMWriteCycleCounter(uint8_t address,uint32_t _value){
 	temp[3] = (uint8_t)_value & 0xFF;
 	EEPROM_WriteBytes(address,temp,4);
 }
-
 uint32_t EEPROMReadCycleCounter(uint8_t address){
 	uint32_t temp_value = 0;
 	uint8_t temp[4];

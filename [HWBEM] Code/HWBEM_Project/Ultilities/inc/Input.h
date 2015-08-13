@@ -59,6 +59,9 @@
 
 #define DIPSW23_MASK		0x06
 
+#define LOW_LEVEL			0
+#define HIGH_LEVEL			1
+
 #define HIGH_NO_EDGE		0
 #define FALLING_EDGE		1
 #define RISING_EDGE			2
@@ -66,6 +69,7 @@
 void Input_InitController(void);
 uint8_t UP_Button_Pressed(void);
 uint8_t DOWN_Button_Pressed(void);
+uint8_t DOWN_Button_Released(void);
 uint8_t DOWN_GetEdgeStatus(void);
 uint8_t SWITCH_Pressed(void);
 uint8_t SEN1_Pressed(void);
@@ -77,6 +81,8 @@ void Input_Service(void);
 uint8_t DIPSW_GetValue();
 extern uint8_t SEN2HoldFlag;
 extern uint8_t DownSwitchEdgeStatus;
-
+extern uint8_t UpSwitchLevel;
+extern uint8_t DownSwitchLevel;
+extern uint8_t Sen2Level;
 #endif /* INC_INPUT_H_ */
 

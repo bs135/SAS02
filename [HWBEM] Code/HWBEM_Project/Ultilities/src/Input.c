@@ -12,6 +12,9 @@ uint8_t InputValue[4] = {0,0,0,0};
 uint8_t DipSWValue[4] = {0,0,0,0};
 uint8_t SenValue[4] = {0,0,0,0};
 uint8_t DownSwitchEdgeStatus = 0;
+uint8_t UpSwitchLevel = HIGH_LEVEL;
+uint8_t DownSwitchLevel = HIGH_LEVEL;
+uint8_t Sen2Level = LOW_LEVEL;
 //uint8_t sen1Condition = NO_CONDITION;
 
 void Input_InitController(){
@@ -45,25 +48,23 @@ void Input_Service(){
 		InputValue[2] = InputValue[1];
 
 		if (Chip_GPIO_GetPinState(LPC_GPIO,BUTTON_PORT,BUTTON_UP_PIN) == FALSE){
+			UpSwitchLevel = LOW_LEVEL;
 			LED_TurnOnUPSWLED();
 			InputValue[1] |= (1<<BUTTON_UP_INDEX);
 		}
 		else {
+			UpSwitchLevel = HIGH_LEVEL;
 			LED_TurnOffUPSWLED();
 			InputValue[1] &= ~(1<<BUTTON_UP_INDEX);
 		}
 
 		if (Chip_GPIO_GetPinState(LPC_GPIO,BUTTON_PORT,BUTTON_DOWN_PIN) == FALSE){
-			if (DownSwitchEdgeStatus != FALLING_EDGE){
-				DownSwitchEdgeStatus = FALLING_EDGE;
-			}
+			DownSwitchLevel = LOW_LEVEL;
 			LED_TurnOnDWSWLED();
 			InputValue[1] |= (1<<BUTTON_DOWN_INDEX);
 		}
 		else {
-			if (DownSwitchEdgeStatus == FALLING_EDGE){
-				DownSwitchEdgeStatus = RISING_EDGE;
-			}
+			DownSwitchLevel = HIGH_LEVEL;
 			LED_TurnOffDWSWLED();
 			InputValue[1] &= ~(1<<BUTTON_DOWN_INDEX);
 		}
@@ -82,7 +83,6 @@ void Input_Service(){
 			else {
 				LED_TurnOnSen1LED();
 			}
-
 			InputValue[1] |= (1<<SEN1_INDEX);
 		}
 		else {
@@ -95,14 +95,15 @@ void Input_Service(){
 			InputValue[1] &= ~(1<<SEN1_INDEX);
 		}
 
-		if (Chip_GPIO_GetPinState(LPC_GPIO,SEN2_PORT,SEN2_PIN) == FALSE){
+		if (Chip_GPIO_GetPinState(LPC_GPIO,SEN2_PORT,SEN2_PIN) == FALSE){ // SEN2 nguoc so voi cac input khac
+			Sen2Level = LOW_LEVEL;
 			LED_TurnOffSen2LED();
-			SEN2HoldFlag = 0;
-			InputValue[1] |= (1<<SEN2_INDEX);
+			InputValue[1] &= ~(1<<SEN2_INDEX);
 		}
 		else {
+			Sen2Level = HIGH_LEVEL;
 			LED_TurnOnSen2LED();
-			InputValue[1] &= ~(1<<SEN2_INDEX);
+			InputValue[1] |= (1<<SEN2_INDEX);
 		}
 
 		if (Chip_GPIO_GetPinState(LPC_GPIO,LM_UP_PORT,LM_UP_PIN) == FALSE){
@@ -184,6 +185,12 @@ uint8_t UP_Button_Pressed(){
 }
 uint8_t DOWN_Button_Pressed(){
 	if ((InputValue[0] & (1<<BUTTON_DOWN_INDEX)) == (1<<BUTTON_DOWN_INDEX)){
+		return TRUE;
+	}
+	else return FALSE;
+}
+uint8_t DOWN_Button_Released(){
+	if ((InputValue[0] & (1<<BUTTON_DOWN_INDEX)) == 0x00){
 		return TRUE;
 	}
 	else return FALSE;
