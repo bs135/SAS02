@@ -39,7 +39,6 @@ void SysTick_Handler(void)
 	Input_Service();
 	IncreaseCounterTimer();
 	FanService();
-	//ADCService();
 	if (cnt>500){
 		LED_ToggleUserLED();
 		//UART_SendNumber(dataADC);
@@ -51,23 +50,7 @@ void SysTick_Handler(void)
 		cnt++;
 	}
 }
-/*
-void I2C_IRQHandler(void)
-{
-	Chip_I2C_MasterStateHandler(I2C0);
-}*/
-/**
- * @brief	Handle interrupt from 32-bit timer
- * @return	Nothing
- */
-/*
-void TIMER32_0_IRQHandler(void)
-{
-	if (Chip_TIMER_MatchPending(LPC_TIMER32_0, 1)) {
-		Chip_TIMER_ClearMatch(LPC_TIMER32_0, 1);
-	}
-}
-*/
+
 void Board_Init(){
 
 	SysTick_Config(SystemCoreClock / SYSTICK_RATE);
@@ -78,8 +61,6 @@ void Board_Init(){
 	UART_InitController();
 	ADC_InitController();
 	Input_InitController();
-	//EEPROM_InitController();
-	//I2CInit(I2CMASTER);
 	I2C_InitController();
 }
 
@@ -88,11 +69,9 @@ void Board_Init(){
  */
 int main(void)
 {
-	uint8_t temp=0;
 	SystemCoreClockUpdate();
 	Board_Init();
 	UART_SendString("SAS02\r\n\t");
-	//LcdPrintString(0,0,"HWBEMV1.0");
 	System_Init();
 	while (1) {
 		System_Running();

@@ -68,12 +68,16 @@
 
 void Input_InitController(void);
 uint8_t UP_Button_Pressed(void);
+uint8_t UP_GetEdgeStatus(void);
+void UP_ClearEdgeStatus(void);
 uint8_t DOWN_Button_Pressed(void);
-uint8_t DOWN_Button_Released(void);
 uint8_t DOWN_GetEdgeStatus(void);
+void DOWN_ClearEdgeStatus(void);
 uint8_t SWITCH_Pressed(void);
 uint8_t SEN1_Pressed(void);
 uint8_t SEN2_Pressed(void);
+uint8_t SEN2_GetEdgeStatus(void);
+void SEN2_ClearEdgeStatus(void);
 uint8_t LM_UP_Pressed(void);
 uint8_t LM_DOWN_Pressed(void);
 

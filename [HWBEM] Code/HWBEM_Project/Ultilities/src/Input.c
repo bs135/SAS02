@@ -11,9 +11,11 @@
 uint8_t InputValue[4] = {0,0,0,0};
 uint8_t DipSWValue[4] = {0,0,0,0};
 uint8_t SenValue[4] = {0,0,0,0};
-uint8_t DownSwitchEdgeStatus = 0;
+uint8_t UpSwitchEdgeStatus = 0;
 uint8_t UpSwitchLevel = HIGH_LEVEL;
+uint8_t DownSwitchEdgeStatus = 0;
 uint8_t DownSwitchLevel = HIGH_LEVEL;
+uint8_t Sen2SwitchEdgeStatus = 0;
 uint8_t Sen2Level = LOW_LEVEL;
 //uint8_t sen1Condition = NO_CONDITION;
 
@@ -47,7 +49,7 @@ void Input_Service(){
 		InputValue[3] = InputValue[2];
 		InputValue[2] = InputValue[1];
 
-		if (Chip_GPIO_GetPinState(LPC_GPIO,BUTTON_PORT,BUTTON_UP_PIN) == FALSE){
+		if (Chip_GPIO_GetPinState(LPC_GPIO,BUTTON_PORT,BUTTON_UP_PIN) == FALSE){ // UP SWITCH
 			UpSwitchLevel = LOW_LEVEL;
 			LED_TurnOnUPSWLED();
 			InputValue[1] |= (1<<BUTTON_UP_INDEX);
@@ -58,12 +60,18 @@ void Input_Service(){
 			InputValue[1] &= ~(1<<BUTTON_UP_INDEX);
 		}
 
-		if (Chip_GPIO_GetPinState(LPC_GPIO,BUTTON_PORT,BUTTON_DOWN_PIN) == FALSE){
+		if (Chip_GPIO_GetPinState(LPC_GPIO,BUTTON_PORT,BUTTON_DOWN_PIN) == FALSE){	// DOWN SWITCH
+			if (DownSwitchLevel == HIGH_LEVEL){
+				DownSwitchEdgeStatus = FALLING_EDGE;
+			}
 			DownSwitchLevel = LOW_LEVEL;
 			LED_TurnOnDWSWLED();
 			InputValue[1] |= (1<<BUTTON_DOWN_INDEX);
 		}
 		else {
+			if (DownSwitchLevel == LOW_LEVEL){
+				DownSwitchEdgeStatus = RISING_EDGE;
+			}
 			DownSwitchLevel = HIGH_LEVEL;
 			LED_TurnOffDWSWLED();
 			InputValue[1] &= ~(1<<BUTTON_DOWN_INDEX);
@@ -96,11 +104,17 @@ void Input_Service(){
 		}
 
 		if (Chip_GPIO_GetPinState(LPC_GPIO,SEN2_PORT,SEN2_PIN) == FALSE){ // SEN2 nguoc so voi cac input khac
+			if (Sen2Level == HIGH_LEVEL){
+				Sen2SwitchEdgeStatus = FALLING_EDGE;
+			}
 			Sen2Level = LOW_LEVEL;
 			LED_TurnOffSen2LED();
 			InputValue[1] &= ~(1<<SEN2_INDEX);
 		}
 		else {
+			if (Sen2Level == LOW_LEVEL){
+				Sen2SwitchEdgeStatus = RISING_EDGE;
+			}
 			Sen2Level = HIGH_LEVEL;
 			LED_TurnOnSen2LED();
 			InputValue[1] |= (1<<SEN2_INDEX);
@@ -183,14 +197,15 @@ uint8_t UP_Button_Pressed(){
 	}
 	else return FALSE;
 }
+uint8_t UP_GetEdgeStatus(){
+	return UpSwitchEdgeStatus;
+}
+void UP_ClearEdgeStatus(){
+	UpSwitchEdgeStatus = HIGH_NO_EDGE;
+}
+
 uint8_t DOWN_Button_Pressed(){
 	if ((InputValue[0] & (1<<BUTTON_DOWN_INDEX)) == (1<<BUTTON_DOWN_INDEX)){
-		return TRUE;
-	}
-	else return FALSE;
-}
-uint8_t DOWN_Button_Released(){
-	if ((InputValue[0] & (1<<BUTTON_DOWN_INDEX)) == 0x00){
 		return TRUE;
 	}
 	else return FALSE;
@@ -198,7 +213,9 @@ uint8_t DOWN_Button_Released(){
 uint8_t DOWN_GetEdgeStatus(){
 	return DownSwitchEdgeStatus;
 }
-
+void DOWN_ClearEdgeStatus(){
+	DownSwitchEdgeStatus = HIGH_NO_EDGE;
+}
 uint8_t SWITCH_Pressed(){
 	if (InputValue[0] & (1<<SWITCH_INDEX)){
 		return TRUE;
@@ -211,12 +228,20 @@ uint8_t SEN1_Pressed(){
 	}
 	else return FALSE;
 }
+
 uint8_t SEN2_Pressed(){
 	if ((InputValue[0] & (1<<SEN2_INDEX)) == (1<<SEN2_INDEX)){
 		return TRUE;
 	}
 	else return FALSE;
 }
+uint8_t SEN2_GetEdgeStatus(){
+	return Sen2SwitchEdgeStatus;
+}
+void SEN2_ClearEdgeStatus(){
+	Sen2SwitchEdgeStatus = HIGH_NO_EDGE;
+}
+
 uint8_t LM_UP_Pressed(){
 	if ((InputValue[0] & (1<<LM_UP_INDEX)) ==  (1<<LM_UP_INDEX)){
 		return TRUE;

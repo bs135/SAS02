@@ -15,7 +15,7 @@
 #include "EEPROM.h"
 #include "LCD.h"
 
-#define CURRENT_VERSION		7
+#define CURRENT_VERSION		8
 
 #define TIME_CHECK_CARHIT	300
 
@@ -36,21 +36,10 @@ uint8_t ProtectIndexTemp = 0;
 uint32_t VersionNumber = CURRENT_VERSION;
 
 void System_Init(){
-	//uint8_t dummy_data[5] = {0,0,0,0,0};
 	VTimer_MotorTotalTimeout = VTimerGetID();
 	VTimer_MotorDelayTimeout = VTimerGetID();
 	VTimer_CarhitDelayTimeout = VTimerGetID();
 	EEPROMFirstCheck();
-	/*if (EEPROM_ReadByte(EEPROM_CHECK_COUNTER_ADDRESS) != 0x55){
-		EEPROM_WriteByte(EEPROM_CHECK_COUNTER_ADDRESS,0x55);
-		DelayMs(10);
-		EEPROM_WriteByte(EEPROM_PROTECT_INDEX_ADDRESS,2);
-		DelayMs(10);
-		EEPROMWriteCycleCounter(EEPROM_CYCLE_COUNTER_ADDRESS,0);
-		DelayMs(10);
-	}*/
-	//EEPROM_WriteByte(EEPROM_PROTECT_INDEX_ADDRESS,2);
-	//DelayMs(10);
 	ProtectIndexTemp = EEPROM_ReadByte(EEPROM_PROTECT_INDEX_ADDRESS);
 	TotalCounter = EEPROMReadCycleCounter(ProtectIndexTemp);
 	LCD_Clear();
@@ -149,40 +138,37 @@ void System_Running(){
 	LCD_DisplayInfo();
 	switch (SystemState){
 		case WAIT_BUTTON:
-			if (UpSwitchLevel == HIGH_LEVEL){	// falling edge
-				if (UP_Button_Pressed()){
-					if (!LM_UP_Pressed()){
-						LcdPrintString(0,0,"UP");
-						Motor_Forward();
-						FAN_TurnOn();
-						VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-						ResetCounterTimer();
-						VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
-						SystemState = LEVER_MOVING_UP;
-						CalculateCurrentValue();
-					}
-					else {
-						LcdPrintString(0,0,"__");
-						Motor_Stop();
-					}
+			if (UP_GetEdgeStatus() == FALLING_EDGE){	//DW_SW rising edge
+				UP_ClearEdgeStatus();
+				if (!LM_UP_Pressed()){
+					LcdPrintString(0,0,"UP");
+					Motor_Forward();
+					FAN_TurnOn();
+					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+					ResetCounterTimer();
+					VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
+					SystemState = LEVER_MOVING_UP;
+					CalculateCurrentValue();
+				}
+				else {
+					LcdPrintString(0,0,"__");
+					Motor_Stop();
 				}
 			}
-			if (DownSwitchLevel == LOW_LEVEL){	//DW_SW rising edge
-				if (DOWN_Button_Released()){
-					if (!LM_DOWN_Pressed()){
-						VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
-						SystemState = WAIT_OBJECT_REMOVE;
-					}
+			if (DOWN_GetEdgeStatus() == RISING_EDGE){	//DW_SW rising edge
+				DOWN_ClearEdgeStatus();
+				if (!LM_DOWN_Pressed()){
+					VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
+					SystemState = WAIT_OBJECT_REMOVE;
 				}
 			}
-			/*if (Sen2Level == HIGH_LEVEL){	// Falling edge
-				if (SEN2_Pressed()){
-					if (!LM_DOWN_Pressed()){
-						VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
-						SystemState = WAIT_OBJECT_REMOVE;
-					}
+			if (SEN2_GetEdgeStatus() == RISING_EDGE){	//DW_SW rising edge
+				SEN2_ClearEdgeStatus();
+				if (!LM_DOWN_Pressed()){
+					VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
+					SystemState = WAIT_OBJECT_REMOVE;
 				}
-			}*/
+			}
 			if (CloseWhenOpenFlag == 1){
 				SystemState = WAIT_OBJECT_REMOVE;
 			}
@@ -218,11 +204,13 @@ void System_Running(){
 					carhitDetectFlag = 0;
 				}
 			}
-
-			if (DOWN_Button_Pressed() || (!SEN2_Pressed())){
-				//ResetCounterTimer();
-				//VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-				CloseWhenOpenFlag = 1;
+			if (DOWN_GetEdgeStatus() == FALLING_EDGE){	//DW_SW falling edge
+					DOWN_ClearEdgeStatus();
+					CloseWhenOpenFlag = 1;
+			}
+			if (SEN2_GetEdgeStatus() == RISING_EDGE){	//SEN2 rising edge
+					SEN2_ClearEdgeStatus();
+					CloseWhenOpenFlag = 1;
 			}
 			else if (UP_Button_Pressed()){
 				if (CloseWhenOpenFlag ==1){
@@ -287,17 +275,16 @@ void System_Running(){
 					SystemState = LEVER_MOVING_UP;
 					break;
 				}
-				else if (DownSwitchLevel == HIGH_LEVEL){	// Cạnh xuống của tín hiện
-					if (DOWN_Button_Pressed()){
-						Motor_Forward();
-						FAN_TurnOn();
-						LcdPrintString(0,0,"UP");
-						ResetCounterTimer();
-						VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-						VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
-						SystemState = LEVER_MOVING_UP;
-						break;
-					}
+				else if (DOWN_GetEdgeStatus() == FALLING_EDGE){	// Cạnh xuống của tín hiện
+					DOWN_ClearEdgeStatus();
+					Motor_Forward();
+					FAN_TurnOn();
+					LcdPrintString(0,0,"UP");
+					ResetCounterTimer();
+					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+					VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
+					SystemState = LEVER_MOVING_UP;
+					break;
 				}
 				else if (ObjectDetectFlag == 1){
 					Motor_Forward();
