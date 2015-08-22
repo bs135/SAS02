@@ -75,12 +75,12 @@ void System_Init(){
 
 uint8_t SystemState = WAIT_BUTTON;
 uint8_t CloseWhenOpenFlag = 0;
-uint8_t OpenWhenCloseFlag = 0;
-uint8_t dipSW23_value = 0;
 uint8_t ObjectDetectFlag = 0;
 uint8_t SEN1State = 0;
 uint8_t SEN2Flag = 0;
 uint8_t UpdateLCDFlag = 0;
+uint8_t CarReverseFlag = 0;
+uint8_t SensorReverseFlag = 0;
 void System_Running(){
 	if (SWITCH_Pressed()){
 		LCD_Clear();
@@ -135,6 +135,25 @@ void System_Running(){
 		if (MotorTotalTimer != 6000) UpdateLCDFlag= 1;
 		MotorTotalTimer = 6000;
 	}
+
+	if ((DIPSW_GetValue() & (1<<DIPSW5_INDEX)) == (1<<DIPSW5_INDEX)){	// Car Reverse
+		if (CarReverseFlag != 1) UpdateLCDFlag= 1;
+		CarReverseFlag = 1;
+	}
+	else {
+		if (CarReverseFlag != 0) UpdateLCDFlag= 1;
+		CarReverseFlag = 0;
+	}
+
+	if ((DIPSW_GetValue() & (1<<DIPSW6_INDEX)) == (1<<DIPSW6_INDEX)){	// Sensor Reverse
+		if (SensorReverseFlag != 1) UpdateLCDFlag= 1;
+		SensorReverseFlag = 1;
+	}
+	else {
+		if (SensorReverseFlag != 0) UpdateLCDFlag= 1;
+		SensorReverseFlag = 0;
+	}
+
 	LCD_DisplayInfo();
 	switch (SystemState){
 		case WAIT_BUTTON:
@@ -416,6 +435,21 @@ void LCD_DisplayInfo(){
 		else if (MotorTotalTimer == 6000){\
 			LcdPrintString(5,1,"6S");
 		}
+
+		if (CarReverseFlag == 1){
+			LcdPrintString(5,1,"CR");
+		}
+		else {
+			LcdPrintString(5,1,"  ");
+		}
+
+		if (SensorReverseFlag == 1){
+			LcdPrintString(3,1,"SR");
+		}
+		else {
+			LcdPrintString(3,1,"  ");
+		}
+
 		UpdateLCDFlag = 0;
 	}
 }
