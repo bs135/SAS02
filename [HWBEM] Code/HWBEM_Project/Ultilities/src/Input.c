@@ -15,6 +15,8 @@ uint8_t UpSwitchEdgeStatus = 0;
 uint8_t UpSwitchLevel = HIGH_LEVEL;
 uint8_t DownSwitchEdgeStatus = 0;
 uint8_t DownSwitchLevel = HIGH_LEVEL;
+uint8_t Switch3EdgeStatus = 0;
+uint8_t Switch3Level = HIGH_LEVEL;
 uint8_t Sen2SwitchEdgeStatus = 0;
 uint8_t Sen2Level = LOW_LEVEL;
 //uint8_t sen1Condition = NO_CONDITION;
@@ -25,9 +27,10 @@ void Input_InitController(){
 	Chip_GPIO_SetPinDIRInput(LPC_GPIO, BUTTON_PORT, BUTTON_DOWN_PIN);
 
 	Chip_GPIO_SetPinDIRInput(LPC_GPIO, SWITCH_PORT, SWITCH_PIN);
+	Chip_GPIO_SetPinDIRInput(LPC_GPIO, SWITCH3_PORT, SWITCH3_PIN);
 	Chip_GPIO_SetPinDIRInput(LPC_GPIO, SEN1_PORT, SEN1_PIN);
 	Chip_GPIO_SetPinDIRInput(LPC_GPIO, SEN2_PORT, SEN2_PIN);
-	Chip_IOCON_PinMuxSet(LPC_IOCON, IOCON_PIO0_7, IOCON_MODE_INACT);
+	Chip_IOCON_PinMuxSet(LPC_IOCON, IOCON_PIO0_7, IOCON_MODE_INACT); // Sen2 pin input nopull
 
 	Chip_GPIO_SetPinDIRInput(LPC_GPIO, LM_UP_PORT, LM_UP_PIN);
 	Chip_GPIO_SetPinDIRInput(LPC_GPIO, LM_DOWN_PORT, LM_DOWN_PIN);
@@ -50,12 +53,16 @@ void Input_Service(){
 		InputValue[2] = InputValue[1];
 
 		if (Chip_GPIO_GetPinState(LPC_GPIO,BUTTON_PORT,BUTTON_UP_PIN) == FALSE){ // UP SWITCH
-			UpSwitchLevel = LOW_LEVEL;
+			if (UpSwitchLevel == HIGH_LEVEL){
+				UpSwitchEdgeStatus = FALLING_EDGE;
+			}
 			LED_TurnOnUPSWLED();
 			InputValue[1] |= (1<<BUTTON_UP_INDEX);
 		}
 		else {
-			UpSwitchLevel = HIGH_LEVEL;
+			if (UpSwitchLevel == LOW_LEVEL){
+				UpSwitchEdgeStatus = RISING_EDGE;
+			}
 			LED_TurnOffUPSWLED();
 			InputValue[1] &= ~(1<<BUTTON_UP_INDEX);
 		}
@@ -77,11 +84,24 @@ void Input_Service(){
 			InputValue[1] &= ~(1<<BUTTON_DOWN_INDEX);
 		}
 
-		if (Chip_GPIO_GetPinState(LPC_GPIO,SWITCH_PORT,SWITCH_PIN) == FALSE){
+		if (Chip_GPIO_GetPinState(LPC_GPIO,SWITCH_PORT,SWITCH_PIN) == FALSE){		//SWITCH
 			InputValue[1] |= (1<<SWITCH_INDEX);
 		}
 		else {
 			InputValue[1] &= ~(1<<SWITCH_INDEX);
+		}
+
+		if (Chip_GPIO_GetPinState(LPC_GPIO,SWITCH3_PORT,SWITCH3_PIN) == FALSE){		//SWITCH 3
+			if (Switch3Level == HIGH_LEVEL){
+				Switch3EdgeStatus = FALLING_EDGE;
+			}
+			InputValue[1] |= (1<<SWITCH3_INDEX);
+		}
+		else {
+			if (Switch3Level == LOW_LEVEL){
+				Switch3EdgeStatus = RISING_EDGE;
+			}
+			InputValue[1] &= ~(1<<SWITCH3_INDEX);
 		}
 
 		if (Chip_GPIO_GetPinState(LPC_GPIO,SEN1_PORT,SEN1_PIN) == FALSE){		// SEN1 = LOW
@@ -221,6 +241,18 @@ uint8_t SWITCH_Pressed(){
 		return TRUE;
 	}
 	else return FALSE;
+}
+uint8_t SWITCH3_Pressed(){
+	if (InputValue[0] & (1<<SWITCH3_INDEX)){
+		return TRUE;
+	}
+	else return FALSE;
+}
+uint8_t SWITCH3_GetEdgeStatus(){
+	return Switch3EdgeStatus;
+}
+void SWITCH3_ClearEdgeStatus(){
+	Switch3EdgeStatus = HIGH_NO_EDGE;
 }
 uint8_t SEN1_Pressed(){
 	if ((InputValue[0] & (1<<SEN1_INDEX)) == (1<<SEN1_INDEX)){

@@ -17,6 +17,9 @@
 #define SWITCH_PORT			1
 #define SWITCH_PIN			4
 
+#define SWITCH3_PORT		0
+#define SWITCH3_PIN			1
+
 #define SEN1_PORT			0
 #define SEN1_PIN			6
 
@@ -32,10 +35,12 @@
 #define BUTTON_UP_INDEX			0
 #define BUTTON_DOWN_INDEX		1
 #define SWITCH_INDEX			2
-#define SEN1_INDEX				3
-#define SEN2_INDEX				4
-#define LM_UP_INDEX				5
-#define LM_DOWN_INDEX			6
+#define SWITCH3_INDEX			3
+#define SEN1_INDEX				4
+#define SEN2_INDEX				5
+#define LM_UP_INDEX				6
+#define LM_DOWN_INDEX			7
+
 
 #define DIPSW_1_PORT		3
 #define DIPSW_1_PIN			0
@@ -74,6 +79,9 @@ uint8_t DOWN_Button_Pressed(void);
 uint8_t DOWN_GetEdgeStatus(void);
 void DOWN_ClearEdgeStatus(void);
 uint8_t SWITCH_Pressed(void);
+uint8_t SWITCH3_Pressed(void);
+uint8_t SWITCH3_GetEdgeStatus();
+void SWITCH3_ClearEdgeStatus();
 uint8_t SEN1_Pressed(void);
 uint8_t SEN2_Pressed(void);
 uint8_t SEN2_GetEdgeStatus(void);

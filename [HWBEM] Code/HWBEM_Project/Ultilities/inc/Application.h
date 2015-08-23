@@ -33,7 +33,9 @@
 
 #define EEPROM_CHECK_COUNTER_ADDRESS	0
 #define EEPROM_PROTECT_INDEX_ADDRESS	1
-#define EEPROM_CYCLE_COUNTER_ADDRESS	2
+#define EEPROM_CURRENT_HIGH_ADDRESS		2
+#define EEPROM_CURRENT_LOW_ADDRESS		3
+#define EEPROM_CYCLE_COUNTER_ADDRESS	4
 
 void System_Init();
 void System_Running();
@@ -48,10 +50,17 @@ uint8_t CarHitDetection();
 void ClearCarHitFlag();
 void LCD_DisplayInfo();
 void LCD_DisplayCurrent(uint16_t value);
+void LCD_DisplayCurrentAtPos(uint8_t col, uint8_t row,uint16_t value);
 void LCD_DisplayCounter(uint32_t value);
 void LcdPrintVersion(uint32_t version);
+void ClearCycleCounter();
+void ClearMeasureCurrent();
 void EEPROMFirstCheck();
 void EEPROMWriteCycleCounter(uint8_t address,uint32_t _value);
 uint32_t EEPROMReadCycleCounter(uint8_t address);
+
+void ClearCurrentBuffer();
+uint16_t CalculateAverageCurrent(uint16_t* buffer,uint8_t length);
+void CalibartionProcess();
 
 #endif /* INC_APPLICATION_H_ */

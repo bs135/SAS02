@@ -45,7 +45,6 @@ void System_Init(){
 	LCD_Clear();
 	LCD_DisplayCounter(TotalCounter);
 	LcdPrintString(0,0,"__");
-	LcdPrintString(2,0,"0.00S");
 	if ((DIPSW_GetValue() & (1<<DIPSW4_INDEX)) == (1<<DIPSW4_INDEX)){
 		LcdPrintString(5,1,"3S");
 	}
@@ -83,14 +82,27 @@ uint8_t CarReverseFlag = 0;
 uint8_t SensorReverseFlag = 0;
 void System_Running(){
 	if (SWITCH_Pressed()){
-		LCD_Clear();
+		/*LCD_Clear();
 		LcdPrintVersion(VersionNumber);
 		DelayMs(3000);
 		LCD_Clear();
-		LcdPrintString(0,0,"__");
-		LcdPrintString(2,0,"0.00S");
 		LCD_DisplayCounter(TotalCounter);
-		LCD_DisplayCurrent(GetCurrentValue());
+		LcdPrintString(0,0,"__");
+		LcdPrintString(0,1,"0.0A");
+		UpdateLCDFlag = 1;
+		LCD_DisplayInfo();*/
+		CalibartionProcess();
+	}
+
+	if (SWITCH3_Pressed()){ // Clear EEPROM
+		ClearCycleCounter();
+		ProtectIndexTemp = EEPROM_ReadByte(EEPROM_PROTECT_INDEX_ADDRESS);
+		TotalCounter = EEPROMReadCycleCounter(ProtectIndexTemp);
+		LCD_DisplayCounter(TotalCounter);
+		LcdPrintString(0,0,"__");
+		LcdPrintString(0,1,"0.0A");
+		UpdateLCDFlag = 1;
+		LCD_DisplayInfo();
 	}
 
 	if ((DIPSW_GetValue() & (1<<DIPSW1_INDEX)) == (1<<DIPSW1_INDEX)){	// DIPSW1 = ON , SEN1 = N/C
@@ -157,7 +169,7 @@ void System_Running(){
 	LCD_DisplayInfo();
 	switch (SystemState){
 		case WAIT_BUTTON:
-			if (UP_GetEdgeStatus() == FALLING_EDGE){	//DW_SW rising edge
+			if (UP_GetEdgeStatus() == FALLING_EDGE){	//UP_SW falling edge
 				UP_ClearEdgeStatus();
 				if (!LM_UP_Pressed()){
 					LcdPrintString(0,0,"UP");
@@ -196,12 +208,10 @@ void System_Running(){
 			if (VTimerIsFired(VTimer_MotorTotalTimeout)){	// hết timeout mà chưa đụng LM_UP
 				Motor_Stop();
 				LcdPrintString(0,0,"__");
-				LCD_PrintTime(2,0,GetCounterTimer());		// hiển thị thời gian
 				SystemState = INCREASE_COUNTER;
 				break;
 			}
 			if ((LM_UP_Pressed())){							// đụng được LM_UP
-				LCD_PrintTime(2,0,GetCounterTimer());		// hiển thị thời gian
 				SystemState = REACH_UP_LIMIT;
 				break;
 			}
@@ -223,6 +233,7 @@ void System_Running(){
 					carhitDetectFlag = 0;
 				}
 			}
+
 			if (DOWN_GetEdgeStatus() == FALLING_EDGE){	//DW_SW falling edge
 					DOWN_ClearEdgeStatus();
 					CloseWhenOpenFlag = 1;
@@ -233,8 +244,6 @@ void System_Running(){
 			}
 			else if (UP_Button_Pressed()){
 				if (CloseWhenOpenFlag ==1){
-					LCD_PrintTime(2,0,GetCounterTimer());
-					ResetCounterTimer();
 					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
 					CloseWhenOpenFlag = 0;
 				}
@@ -259,7 +268,6 @@ void System_Running(){
 				//	OpenWhenCloseFlag = 0;
 				//}
 				else if (VTimerIsFired(VTimer_MotorDelayTimeout)){	// hết timeout delay motor
-					ResetCounterTimer();
 					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
 					if ((!LM_DOWN_Pressed())){
 						LcdPrintString(0,0,"DW");
@@ -277,7 +285,6 @@ void System_Running(){
 				break;
 		case LEVER_MOVE_DOWN:
 			if (VTimerIsFired(VTimer_MotorTotalTimeout)){	// hết timeout mà chưa đụng DW_UP
-				LCD_PrintTime(2,0,GetCounterTimer());
 				CloseWhenOpenFlag = 0;
 				SystemState = RESET_VALUE;
 				break;
@@ -288,7 +295,6 @@ void System_Running(){
 					Motor_Forward();		// Motor đi lên
 					FAN_TurnOn();
 					LcdPrintString(0,0,"UP");
-					ResetCounterTimer();
 					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
 					VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
 					SystemState = LEVER_MOVING_UP;
@@ -299,7 +305,6 @@ void System_Running(){
 					Motor_Forward();
 					FAN_TurnOn();
 					LcdPrintString(0,0,"UP");
-					ResetCounterTimer();
 					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
 					VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
 					SystemState = LEVER_MOVING_UP;
@@ -309,14 +314,19 @@ void System_Running(){
 					Motor_Forward();
 					FAN_TurnOn();
 					LcdPrintString(0,0,"UP");
-					ResetCounterTimer();
 					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
 					VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
 					SystemState = LEVER_MOVING_UP;
+					if (SensorReverseFlag == 1){
+						CloseWhenOpenFlag = 0;
+					}
+					else {
+						CloseWhenOpenFlag = 1;
+					}
 					break;
 				}
 			}
-
+			/*
 			CalculateCurrentValue();
 			if (calculate_done == 1){
 				LCD_DisplayCurrent(GetCurrentValue());
@@ -330,17 +340,17 @@ void System_Running(){
 			else if (carhitDetectFlag == 1){
 				if (CarHitDetection()){
 					//SystemState = CAR_HIT_DETECT_DOWN;
-					//break;
 					carhitDetectFlag = 0;
+					//break;
 				}
-			}
+			}*/
 
 			if ((LM_DOWN_Pressed())){		// Đi xuống đụng DW_LM
 				CloseWhenOpenFlag = 0;
-				LCD_PrintTime(2,0,GetCounterTimer());
 				SystemState = REACH_DOWN_LIMIT;
 				break;
 			}
+
 			break;
 		case REACH_UP_LIMIT:
 			Motor_Stop();
@@ -352,7 +362,6 @@ void System_Running(){
 			break;
 		case REACH_DOWN_LIMIT:
 			Motor_Stop();
-			//FAN_TurnOff(60000);
 			SystemState = RESET_VALUE;
 			break;
 		case INCREASE_COUNTER:
@@ -437,17 +446,17 @@ void LCD_DisplayInfo(){
 		}
 
 		if (CarReverseFlag == 1){
-			LcdPrintString(5,1,"CR");
+			LcdPrintString(5,0,"CR");
 		}
 		else {
-			LcdPrintString(5,1,"  ");
+			LcdPrintString(5,0,"  ");
 		}
 
 		if (SensorReverseFlag == 1){
-			LcdPrintString(3,1,"SR");
+			LcdPrintString(3,0,"SR");
 		}
 		else {
-			LcdPrintString(3,1,"  ");
+			LcdPrintString(3,0,"  ");
 		}
 
 		UpdateLCDFlag = 0;
@@ -460,6 +469,14 @@ void LCD_DisplayCurrent(uint16_t value){
 	LcdPutChar('0' + ((value/100) %10));
 	LcdPutChar('A');
 }
+void LCD_DisplayCurrentAtPos(uint8_t col, uint8_t row,uint16_t value){
+	LCD_GotoXY(col,row);
+	LcdPutChar('0' + ((value/1000) %10));
+	LcdPutChar('.');
+	LcdPutChar('0' + ((value/100) %10));
+	LcdPutChar('A');
+}
+
 void LCD_DisplayCounter(uint32_t value){
 	LCD_GotoXY(8,0);
 	LcdPutChar('0' + ((value/10000000) %10));
@@ -497,11 +514,35 @@ void EEPROMFirstCheck(){
 	if ((temp1 != 0x55) && (temp2 != 0x55)){
 		EEPROM_WriteByte(EEPROM_CHECK_COUNTER_ADDRESS,0x55);
 		DelayMs(10);
-		EEPROM_WriteByte(EEPROM_PROTECT_INDEX_ADDRESS,2);
+		EEPROM_WriteByte(EEPROM_PROTECT_INDEX_ADDRESS,EEPROM_CYCLE_COUNTER_ADDRESS);
 		DelayMs(10);
 		EEPROMWriteCycleCounter(EEPROM_CYCLE_COUNTER_ADDRESS,0);
 		DelayMs(10);
 	}
+}
+void ClearCycleCounter(){
+	ProtectIndexTemp = EEPROM_ReadByte(EEPROM_PROTECT_INDEX_ADDRESS);
+	DelayMs(10);
+	LCD_Clear();
+	LcdPrintString(0,0,"Waiting...");
+	TotalCounter = 0;
+	EEPROMWriteCycleCounter(ProtectIndexTemp,TotalCounter);
+	DelayMs(10);
+	LcdPrintString(0,0,"ERASE DONE");
+	DelayMs(500);
+	LCD_Clear();
+	UpdateLCDFlag = 1;
+}
+void ClearMeasureCurrent(){
+	uint8_t dummy_data[2] = {0,0};
+	LCD_Clear();
+	LcdPrintString(0,0,"Waiting...");
+	EEPROM_WriteBytes(EEPROM_CURRENT_HIGH_ADDRESS,dummy_data,2);
+	LCD_Clear();
+	LcdPrintString(0,0,"ERASE DONE");
+	DelayMs(500);
+	LCD_Clear();
+	UpdateLCDFlag = 1;
 }
 void EEPROMWriteCycleCounter(uint8_t address,uint32_t _value){
 	uint8_t temp[4];
@@ -525,3 +566,73 @@ uint32_t EEPROMReadCycleCounter(uint8_t address){
 	return temp_value;
 }
 
+#define CURRENT_BUFFER_LENGTH	100
+uint16_t CurrentValueTemp[CURRENT_BUFFER_LENGTH];
+uint16_t CurrentValue[5] = {0,0,0,0,0};
+void ClearCurrentBuffer(){
+	uint8_t i;
+	for (i=0;i<CURRENT_BUFFER_LENGTH;i++){
+		CurrentValueTemp[i] = 0;
+	}
+}
+uint16_t CalculateAverageCurrent(uint16_t* buffer,uint8_t length){
+	uint8_t i;
+	uint32_t temp_value = 0;
+	for (i=0;i<length;i++){
+		temp_value = temp_value + buffer[i];
+	}
+	temp_value = temp_value / length;
+	return (uint16_t)temp_value;
+}
+void CalibartionProcess(){
+	uint8_t Cycle = 0;
+	uint8_t StartAtDownFlag = 0;
+	uint8_t Error = 0;
+	uint8_t Times= 0;
+	uint8_t SaveValueFlag = 0;
+	uint16_t CurrentReference = 0;
+	LCD_Clear();
+	LcdPrintString(0,0,"CALIBRATION");
+	if (LM_DOWN_Pressed()) {
+		StartAtDownFlag = 1;
+	}
+	while (!LM_UP_Pressed()){	// Barrier move up if it is at DOWN Position
+		Motor_Forward();
+		FAN_TurnOn();
+	}
+	Motor_Stop();
+
+	// Barrier is at LM_UP
+	for (Cycle = 0 ; Cycle < 5; Cycle++){
+		ClearCurrentBuffer();
+		Motor_Reverse(); // Motor move DOWN
+		VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
+		while (!LM_DOWN_Pressed()){
+			CalculateCurrentValue();
+			if (calculate_done == 1){
+				if (VTimerIsFired(VTimer_CarhitDelayTimeout)){
+					if (Times < 100){
+						CurrentValueTemp[Times++] = GetCurrentValue();
+					}
+				}
+				LCD_DisplayCurrentAtPos(10,1,GetCurrentValue());
+				calculate_done = 0;
+			}
+			// TODO: check SEN1, timeout ...
+		}
+		Motor_Stop();
+		CurrentValue[Cycle] = CalculateAverageCurrent(CurrentValueTemp,Times);
+		CurrentReference = CurrentReference + CurrentValue[Cycle];
+		Times = 0;
+		DelayMs(300);
+		Motor_Forward();	// Motor move UP
+		while (!LM_UP_Pressed());
+		Motor_Stop();
+		DelayMs(300);
+	}
+	CurrentReference = CurrentReference / 5;
+	LCD_Clear();
+	LcdPrintString(0,0,"COMPLETE");
+	LcdPrintString(0,1,"REFERENCE");
+	LCD_DisplayCurrentAtPos(10,1,CurrentReference);
+}

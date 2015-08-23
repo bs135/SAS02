@@ -23,7 +23,6 @@ void I2C_InitController(){
  	LPC_I2C->SCLL   = I2SCLL_SCLL;
  	LPC_I2C->SCLH   = I2SCLH_SCLH;
  	LPC_I2C->CONSET = I2CONSET_I2EN;
- //	NVIC_EnableIRQ(I2C0_IRQn);
  	I2CTimerID = VTimerGetID();
 
 }
