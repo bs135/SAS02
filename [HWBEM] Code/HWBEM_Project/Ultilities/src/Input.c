@@ -28,6 +28,7 @@ void Input_InitController(){
 
 	Chip_GPIO_SetPinDIRInput(LPC_GPIO, SWITCH_PORT, SWITCH_PIN);
 	Chip_GPIO_SetPinDIRInput(LPC_GPIO, SWITCH3_PORT, SWITCH3_PIN);
+	Chip_IOCON_PinMuxSet(LPC_IOCON, IOCON_PIO0_1, IOCON_MODE_INACT); // Switch3 pin input nopull
 	Chip_GPIO_SetPinDIRInput(LPC_GPIO, SEN1_PORT, SEN1_PIN);
 	Chip_GPIO_SetPinDIRInput(LPC_GPIO, SEN2_PORT, SEN2_PIN);
 	Chip_IOCON_PinMuxSet(LPC_IOCON, IOCON_PIO0_7, IOCON_MODE_INACT); // Sen2 pin input nopull
@@ -95,12 +96,14 @@ void Input_Service(){
 			if (Switch3Level == HIGH_LEVEL){
 				Switch3EdgeStatus = FALLING_EDGE;
 			}
+			Switch3Level = LOW_LEVEL;
 			InputValue[1] |= (1<<SWITCH3_INDEX);
 		}
 		else {
 			if (Switch3Level == LOW_LEVEL){
 				Switch3EdgeStatus = RISING_EDGE;
 			}
+			Switch3Level = HIGH_LEVEL;
 			InputValue[1] &= ~(1<<SWITCH3_INDEX);
 		}
 

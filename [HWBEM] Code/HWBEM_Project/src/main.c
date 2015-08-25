@@ -71,7 +71,8 @@ int main(void)
 {
 	SystemCoreClockUpdate();
 	Board_Init();
-	UART_SendString("SAS02\r\n\t");
+	DelayMs(500);
+	//UART_SendString("SAS02\r\n\t");
 	System_Init();
 	while (1) {
 		System_Running();

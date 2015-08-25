@@ -40,7 +40,7 @@ void CalculateCurrentValue(){
 	Chip_ADC_ReadValue(LPC_ADC, ADC_CH1, &dataADC);
 	FindMaxValue(dataADC);
 	adc_cnt ++;
-	if (adc_cnt >= 3000){
+	if (adc_cnt >= 2000){
 		calculate_done = 1;
 		value_temp = (maxValue - 120);
 		//value_temp = abs(value_temp);

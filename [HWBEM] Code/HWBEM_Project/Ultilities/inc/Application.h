@@ -31,11 +31,12 @@
 #define GATE_OPENED				0
 #define GATE_CLOSED				1
 
-#define EEPROM_CHECK_COUNTER_ADDRESS	0
-#define EEPROM_PROTECT_INDEX_ADDRESS	1
-#define EEPROM_CURRENT_HIGH_ADDRESS		2
-#define EEPROM_CURRENT_LOW_ADDRESS		3
-#define EEPROM_CYCLE_COUNTER_ADDRESS	4
+#define EEPROM_CHECK_COUNTER_ADDRESS	1
+#define EEPROM_PROTECT_INDEX_ADDRESS	2
+#define EEPROM_CURRENT_HIGH_ADDRESS		3
+#define EEPROM_CURRENT_LOW_ADDRESS		4
+#define EEPROM_CARHIT_FLAG_ADDRESS		5
+#define EEPROM_CYCLE_COUNTER_ADDRESS	6
 
 void System_Init();
 void System_Running();
@@ -58,9 +59,10 @@ void ClearMeasureCurrent();
 void EEPROMFirstCheck();
 void EEPROMWriteCycleCounter(uint8_t address,uint32_t _value);
 uint32_t EEPROMReadCycleCounter(uint8_t address);
+void EEPROM_ClearAll();
 
 void ClearCurrentBuffer();
 uint16_t CalculateAverageCurrent(uint16_t* buffer,uint8_t length);
 void CalibartionProcess();
-
+void ResetCalibartionProcess();
 #endif /* INC_APPLICATION_H_ */

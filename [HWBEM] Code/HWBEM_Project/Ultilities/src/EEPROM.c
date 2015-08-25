@@ -18,7 +18,7 @@ void I2C_InitController(){
 	Chip_SYSCTL_PeriphReset(RESET_I2C0);
 	Chip_IOCON_PinMuxSet(LPC_IOCON, IOCON_PIO0_4, IOCON_FUNC1);
 	Chip_IOCON_PinMuxSet(LPC_IOCON, IOCON_PIO0_5, IOCON_FUNC1);
-	Chip_I2C_SetClockRate(I2C0,I2C_SPEED_100KHZ);
+	Chip_I2C_SetClockRate(I2C0,I2C_SPEED_400KHZ);
  	Chip_I2C_Init(I2C0);
  	LPC_I2C->SCLL   = I2SCLL_SCLL;
  	LPC_I2C->SCLH   = I2SCLH_SCLH;
@@ -35,7 +35,7 @@ void I2C_SendByte(uint8_t address, uint8_t data){
 	VTimerSet(I2CTimerID,I2C_TIMEOUT);
 	while(LPC_I2C->STAT != I2C_I2STAT_M_TX_START){
 		if(VTimerIsFired(I2CTimerID)) {
-			//UART_SendString("Fail1\r\n\t");
+			UART_SendString("Fail1\r\n\t");
 			break;
 		}
 	}
@@ -45,7 +45,7 @@ void I2C_SendByte(uint8_t address, uint8_t data){
 	VTimerSet(I2CTimerID,I2C_TIMEOUT);
 	while(LPC_I2C->STAT != I2C_I2STAT_M_TX_SLAW_ACK){
 		if(VTimerIsFired(I2CTimerID)) {
-			///UART_SendString("Fail2\r\n\t");
+			UART_SendString("Fail2\r\n\t");
 			break;
 		}
 	}
@@ -54,7 +54,7 @@ void I2C_SendByte(uint8_t address, uint8_t data){
 	VTimerSet(I2CTimerID,I2C_TIMEOUT);
 	while(LPC_I2C->STAT != I2C_I2STAT_M_TX_DAT_ACK){
 		if(VTimerIsFired(I2CTimerID)) {
-			//UART_SendString("Fail3\r\n\t");
+			UART_SendString("Fail3\r\n\t");
 			break;
 		}
 	}
@@ -63,7 +63,7 @@ void I2C_SendByte(uint8_t address, uint8_t data){
 	VTimerSet(I2CTimerID,I2C_TIMEOUT);
 	while(LPC_I2C->STAT != I2C_I2STAT_M_TX_DAT_ACK){
 		if(VTimerIsFired(I2CTimerID)) {
-			//UART_SendString("Fail4\r\n\t");
+			UART_SendString("Fail4\r\n\t");
 			break;
 		}
 	}
@@ -113,7 +113,7 @@ void I2C_SendBytes(uint8_t address, uint8_t* data,uint8_t length){
 		VTimerSet(I2CTimerID,I2C_TIMEOUT);
 		while(LPC_I2C->STAT != I2C_I2STAT_M_TX_DAT_ACK){
 			if(VTimerIsFired(I2CTimerID)) {
-				UART_SendString("Fail4\r\n\t");
+				//UART_SendString("Fail4\r\n\t");
 				break;
 			}
 		}
