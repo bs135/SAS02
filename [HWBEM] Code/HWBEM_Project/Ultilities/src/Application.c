@@ -15,11 +15,11 @@
 #include "EEPROM.h"
 #include "LCD.h"
 
-#define CURRENT_VERSION		8
+#define CURRENT_VERSION		9
 
 #define DELTA_CURRENT_REFERENCE	600
 
-#define TIME_CHECK_CARHIT	1000
+#define TIME_CHECK_CARHIT	300
 
 uint32_t MotorTotalTimer = 0;
 uint32_t CloseDelayTimer = 0;
@@ -101,6 +101,7 @@ uint8_t UpdateLCDFlag = 0;
 uint8_t CarReverseFlag = 0;
 uint8_t SensorReverseFlag = 0;
 
+uint8_t NumPressDownSwitch = 1;
 void System_Running(){
 	if (SWITCH_Pressed()){
 		UART_SendString("SWITCH3 \r\n\t");
@@ -221,12 +222,16 @@ void System_Running(){
 				}
 			}
 			if (DOWN_GetEdgeStatus() == RISING_EDGE){	//DW_SW rising edge
-				UpdateLCDFlag = 1;
-				LCD_DisplayInfo();
-				DOWN_ClearEdgeStatus();
-				if (!LM_DOWN_Pressed()){
-					VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
-					SystemState = WAIT_OBJECT_REMOVE;
+				NumPressDownSwitch ++;
+				if (NumPressDownSwitch >= 2){
+					NumPressDownSwitch = 1;
+					UpdateLCDFlag = 1;
+					LCD_DisplayInfo();
+					DOWN_ClearEdgeStatus();
+					if (!LM_DOWN_Pressed()){
+						VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
+						SystemState = WAIT_OBJECT_REMOVE;
+					}
 				}
 			}
 			if (SEN2_GetEdgeStatus() == RISING_EDGE){	//rising edge
@@ -365,22 +370,23 @@ void System_Running(){
 				}
 			}
 			if (CarHitActive == 1){
-				CalculateCurrentValue();
-				if (calculate_done == 1){
-					LCD_DisplayCurrent(GetCurrentValue());
-					UART_SendNumber(CurrentReference);
-					UART_SendByte(13);
-					UART_SendNumber(GetCurrentValue());
-					UART_SendByte(13);
-					calculate_done = 0;
-				}
 				if (VTimerIsFired(VTimer_CarhitDelayTimeout)){
+					CalculateCurrentValue();
+					if (calculate_done == 1){
+						LCD_DisplayCurrent(GetCurrentValue());
+						UART_SendNumber(CurrentReference);
+						UART_SendByte(13);
+						UART_SendNumber(GetCurrentValue());
+						UART_SendByte(13);
+						calculate_done = 0;
+					}
 					if (CarHitDetection()){
 						Motor_Forward();
 						FAN_TurnOn();
 						LcdPrintString(0,0,"UP");
 						VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
 						SystemState = LEVER_MOVING_UP;
+						NumPressDownSwitch = 0;
 						carhitDetectFlag = 0;
 						break;
 					}
