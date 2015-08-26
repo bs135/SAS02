@@ -223,11 +223,11 @@ void System_Running(){
 			}
 			if (DOWN_GetEdgeStatus() == RISING_EDGE){	//DW_SW rising edge
 				NumPressDownSwitch ++;
+				DOWN_ClearEdgeStatus();
 				if (NumPressDownSwitch >= 2){
 					NumPressDownSwitch = 1;
 					UpdateLCDFlag = 1;
 					LCD_DisplayInfo();
-					DOWN_ClearEdgeStatus();
 					if (!LM_DOWN_Pressed()){
 						VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
 						SystemState = WAIT_OBJECT_REMOVE;
@@ -758,17 +758,17 @@ void CalibartionProcess(){
 				Error = 1;
 				break;
 			}
-			CalculateCurrentValue();
-			if (calculate_done == 1){
-				if (VTimerIsFired(VTimer_CarhitDelayTimeout)){	// Motor Total timeout
+			if (VTimerIsFired(VTimer_CarhitDelayTimeout)){	// Motor Total timeout
+				CalculateCurrentValue();
+				if (calculate_done == 1){
 					if (Times < 100){
 						CurrentValueTemp[Times++] = GetCurrentValue();
+						LCD_DisplayCurrentAtPos(10,1,GetCurrentValue());
+						calculate_done = 0;
 						UART_SendNumber(GetCurrentValue());
-						UART_SendByte(13);
+						//UART_SendByte(13);
 					}
 				}
-				LCD_DisplayCurrentAtPos(10,1,GetCurrentValue());
-				calculate_done = 0;
 			}
 		}
 		Motor_Stop();
