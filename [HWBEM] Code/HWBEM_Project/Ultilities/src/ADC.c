@@ -40,11 +40,12 @@ void CalculateCurrentValue(){
 	Chip_ADC_ReadValue(LPC_ADC, ADC_CH1, &dataADC);
 	FindMaxValue(dataADC);
 	adc_cnt ++;
-	if (adc_cnt >= 2000){
+	if (adc_cnt >= 3000){
 		calculate_done = 1;
 		value_temp = (maxValue - 120);
 		//value_temp = abs(value_temp);
-		currentValue = value_temp * 37;
+		//currentValue = value_temp * 37;	// Not Mount VR7 (10K)
+		currentValue = value_temp * 44;
 		adc_cnt = 0;
 		ResetMaxValue();
 		//UART_SendNumber(dataADC);
