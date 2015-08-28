@@ -76,6 +76,12 @@ int main(void)
 	System_Init();
 	while (1) {
 		System_Running();
+		/*Chip_ADC_SetStartMode(LPC_ADC, ADC_START_NOW, ADC_TRIGGERMODE_RISING);
+					while (Chip_ADC_ReadStatus(LPC_ADC, ADC_CH1, ADC_DR_DONE_STAT) != SET) {};
+					Chip_ADC_ReadValue(LPC_ADC, ADC_CH1, &dataADC);
+					UART_SendNumber(dataADC);
+								UART_SendByte(13);
+								DelayMs(100);*/
 	}
 	return 0;
 }

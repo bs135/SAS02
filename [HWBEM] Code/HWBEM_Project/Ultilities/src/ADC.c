@@ -12,9 +12,9 @@ static ADC_CLOCK_SETUP_T ADCSetup;
 
 uint16_t dataADC = 0;
 uint16_t adc_cnt = 0;
-uint16_t maxValue = 0;
-uint16_t currentValue = 0;
-int32_t value_temp = 0;
+uint32_t maxValue = 0;
+uint32_t currentValue = 0;
+uint32_t value_temp = 0;
 uint8_t calculate_done = 0;
 void ADC_InitController(){
 	//Chip_IOCON_PinMuxSet(LPC_IOCON, IOCON_PIO0_11, FUNC2);
@@ -42,34 +42,32 @@ void CalculateCurrentValue(){
 	adc_cnt ++;
 	if (adc_cnt >= 3000){
 		calculate_done = 1;
-		value_temp = (maxValue - 120);
-		//value_temp = abs(value_temp);
+		//value_temp = (maxValue - 120);
 		//currentValue = value_temp * 37;	// Not Mount VR7 (10K)
-		currentValue = value_temp * 44;
+		value_temp = (maxValue - 102);
+		currentValue = value_temp * 436 / 10;
 		adc_cnt = 0;
 		ResetMaxValue();
-		//UART_SendNumber(dataADC);
-		//UART_SendByte(13);
-		//UART_SendNumber(currentValue);
-		//UART_SendByte(13);
-		//LcdPutDigi4(0,0,currentValue);
 	}
 }
-uint16_t GetCurrentValue(){
+uint32_t GetCurrentValue(){
 	return currentValue;
 }
 void ResetCurrentValue(){
 	currentValue = 0;
 }
 void FindMaxValue(uint16_t a){
-	if (a >=120){
-		if (maxValue < a)
-			maxValue = a;
+	uint32_t temp;
+	temp = (uint32_t) a;
+	if (temp >= 120){
+		if (maxValue < temp){
+			maxValue = temp;
+		}
 	}
 }
-uint16_t GetMaxValue(){
+uint32_t GetMaxValue(){
 	return maxValue;
 }
 void ResetMaxValue(){
-	maxValue = 0;
+	maxValue = 120;
 }
