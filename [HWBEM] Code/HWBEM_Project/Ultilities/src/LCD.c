@@ -75,7 +75,6 @@ void LCD_Write4Bit(uint32_t data){
 	LCD_EN_PIN_HIGH();		//Set chan LCD_EN_PIN len 1
 	DelayMs(1);
 	LCD_EN_PIN_LOW();		//Keo chan LCD_EN_PIN xuong 0
-	//LCD_Delay(10);
 }	
 void LCD_WriteCommand(uint32_t cmd){
 	LCD_WaitBusy();
