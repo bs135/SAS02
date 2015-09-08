@@ -105,7 +105,6 @@ uint8_t SensorReverseFlag = 0;
 
 void System_Running(){
 	if (SWITCH_Pressed()){
-		//UART_SendString("SWITCH \r\n\t");
 		VTimerSet(VTimer_ResetCalibratioID,5000);
 		while (!VTimerIsFired(VTimer_ResetCalibratioID)){
 			if (!(SWITCH_Pressed())){
@@ -125,7 +124,6 @@ void System_Running(){
 	}
 
 	if (SWITCH3_GetEdgeStatus() == RISING_EDGE){ // Clear EEPROM
-		//UART_SendString("SWITCH3 \r\n\t");
 		SWITCH3_ClearEdgeStatus();
 		ClearCycleCounter();
 		ProtectIndexTemp = EEPROM_ReadByte(EEPROM_PROTECT_INDEX_ADDRESS);
@@ -140,7 +138,9 @@ void System_Running(){
 	}
 
 	if ((DIPSW_GetValue() & (1<<DIPSW1_INDEX)) == (1<<DIPSW1_INDEX)){	// DIPSW1 = ON , SEN1 = N/C
-		if (SEN1State == SEN1_STATE_NO) UpdateLCDFlag= 1;
+		if (SEN1State == SEN1_STATE_NO) {
+			LcdPrintString(11,1,"sNC");
+		}
 		SEN1State = SEN1_STATE_NC;
 		if (!SEN1_Pressed()){	// Detect object
 			ObjectDetectFlag = 1;
@@ -150,7 +150,9 @@ void System_Running(){
 		}
 	}
 	else {
-		if (SEN1State == SEN1_STATE_NC) UpdateLCDFlag= 1;
+		if (SEN1State == SEN1_STATE_NC) {
+			LcdPrintString(11,1,"sNO");
+		}
 		SEN1State = SEN1_STATE_NO;
 		if (SEN1_Pressed()){	// Detect object
 			ObjectDetectFlag = 1;
@@ -161,46 +163,64 @@ void System_Running(){
 	}
 
 	if ((DIPSW_GetValue() & (1<<DIPSW3_INDEX)) == (1<<DIPSW3_INDEX)){	// ON
-		if (CloseDelayTimer != 0) UpdateLCDFlag= 1;
+		if (CloseDelayTimer != 0) {
+			LcdPrintString(8,1,"N-");
+		}
 		CloseDelayTimer = 0;
 	}
 	else if ((DIPSW_GetValue() & (1<<DIPSW2_INDEX)) == (1<<DIPSW2_INDEX)){ // ON
-		if (CloseDelayTimer != 3000) UpdateLCDFlag= 1;
+		if (CloseDelayTimer != 3000) {
+			LcdPrintString(8,1,"D3");
+		}
 		CloseDelayTimer = 3000;
 	}
 	else {
-		if (CloseDelayTimer != 1000) UpdateLCDFlag= 1;
+		if (CloseDelayTimer != 1000) {
+			LcdPrintString(8,1,"D1");
+		}
 		CloseDelayTimer = 1000;
 	}
 
 	if ((DIPSW_GetValue() & (1<<DIPSW4_INDEX)) == (1<<DIPSW4_INDEX)){	// N/C
-		if (MotorTotalTimer != 3000) UpdateLCDFlag= 1;
+		if (MotorTotalTimer != 3000) {
+			LcdPrintString(5,1,"3S");
+		}
 		MotorTotalTimer = 3000;
 	}
 	else {
-		if (MotorTotalTimer != 6000) UpdateLCDFlag= 1;
+		if (MotorTotalTimer != 6000) {
+			LcdPrintString(5,1,"6S");
+		}
 		MotorTotalTimer = 6000;
 	}
 
 	if ((DIPSW_GetValue() & (1<<DIPSW5_INDEX)) == (1<<DIPSW5_INDEX)){	// Car Reverse
-		if (CarReverseFlag != 1) UpdateLCDFlag= 1;
+		if (CarReverseFlag != 1){
+			LcdPrintString(5,0,"CR");
+		}
 		CarReverseFlag = 1;
 	}
 	else {
-		if (CarReverseFlag != 0) UpdateLCDFlag= 1;
+		if (CarReverseFlag != 0) {
+			LcdPrintString(5,0,"  ");
+		}
 		CarReverseFlag = 0;
 	}
 
 	if ((DIPSW_GetValue() & (1<<DIPSW6_INDEX)) == (1<<DIPSW6_INDEX)){	// Sensor Reverse
-		if (SensorReverseFlag != 1) UpdateLCDFlag= 1;
+		if (SensorReverseFlag != 1){
+			LcdPrintString(3,0,"SR");
+		}
 		SensorReverseFlag = 1;
 	}
 	else {
-		if (SensorReverseFlag != 0) UpdateLCDFlag= 1;
+		if (SensorReverseFlag != 0){
+			LcdPrintString(3,0,"  ");
+		}
 		SensorReverseFlag = 0;
 	}
 
-	LCD_DisplayInfo();
+	//LCD_DisplayInfo();
 	switch (SystemState){
 		case WAIT_BUTTON:
 			if (UP_GetEdgeStatus() == FALLING_EDGE){	//UP_SW falling edge
@@ -229,7 +249,7 @@ void System_Running(){
 					DOWN_ClearEdgeStatus();
 					if (NumPressDownSwitch >= 2){
 						NumPressDownSwitch = 1;
-						UpdateLCDFlag = 1;
+						//UpdateLCDFlag = 1;
 						LCD_DisplayInfo();
 						if (!LM_DOWN_Pressed()){
 							VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
@@ -387,7 +407,13 @@ void System_Running(){
 						LcdPrintString(0,0,"UP");
 						VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
 						SystemState = LEVER_MOVING_UP;
-						NumPressDownSwitch = 0;
+						if (CarReverseFlag == 1){
+							NumPressDownSwitch = 0;
+						}
+						else {
+							NumPressDownSwitch = 0;
+						}
+
 						carhitDetectFlag = 0;
 						break;
 					}
@@ -441,10 +467,6 @@ void System_Running(){
 			DOWN_ClearEdgeStatus();
 			SEN2_ClearEdgeStatus();
 			SWITCH3_ClearEdgeStatus();
-			break;
-		case CAR_HIT_DETECT_UP:
-			break;
-		case CAR_HIT_DETECT_DOWN:
 			break;
 		default:
 			break;
