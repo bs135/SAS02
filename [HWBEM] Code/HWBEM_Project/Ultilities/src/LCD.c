@@ -7,11 +7,11 @@ void LCD_InitController(){
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO,LCD_CTRL_PORT,LCD_RD_PIN);
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO,LCD_CTRL_PORT,LCD_EN_PIN);
 	/* Set all data pins for LCD as outputs    */
-	LCD_SetDataPortOutput();
-	//Chip_GPIO_SetPinDIROutput(LPC_GPIO_LCD_DATA,LCD_DATA_PORT,LCD_D4_PIN);
-	//Chip_GPIO_SetPinDIROutput(LPC_GPIO_LCD_DATA,LCD_DATA_PORT,LCD_D5_PIN);
-	//Chip_GPIO_SetPinDIROutput(LPC_GPIO_LCD_DATA,LCD_DATA_PORT,LCD_D6_PIN);
-	//Chip_GPIO_SetPinDIROutput(LPC_GPIO_LCD_DATA,LCD_DATA_PORT,LCD_D7_PIN);
+	//LCD_SetDataPortOutput();
+	Chip_GPIO_SetPinDIROutput(LPC_GPIO,LCD_DATA_PORT,LCD_D4_PIN);
+	Chip_GPIO_SetPinDIROutput(LPC_GPIO,LCD_DATA_PORT,LCD_D5_PIN);
+	Chip_GPIO_SetPinDIROutput(LPC_GPIO,LCD_DATA_PORT,LCD_D6_PIN);
+	Chip_GPIO_SetPinDIROutput(LPC_GPIO,LCD_DATA_PORT,LCD_D7_PIN);
 	/* Set backlight pins for LCD as outputs    */
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO,LCD_BKL_PORT,LCD_BKL_PIN);
 	LCD_TurnOnBackLight();

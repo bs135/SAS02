@@ -15,7 +15,7 @@
 #include "EEPROM.h"
 #include "LCD.h"
 
-#define CURRENT_VERSION		12
+#define CURRENT_VERSION		13
 
 #define DELTA_CURRENT_REFERENCE	600
 
@@ -224,8 +224,8 @@ void System_Running(){
 	switch (SystemState){
 		case WAIT_BUTTON:
 			if (UP_GetEdgeStatus() == FALLING_EDGE){	//UP_SW falling edge
-				UpdateLCDFlag = 1;
-				LCD_DisplayInfo();
+				//UpdateLCDFlag = 1;
+				//LCD_DisplayInfo();
 				UP_ClearEdgeStatus();
 				if (!LM_UP_Pressed()){
 					LcdPrintString(0,0,"UP");
@@ -250,7 +250,7 @@ void System_Running(){
 					if (NumPressDownSwitch >= 2){
 						NumPressDownSwitch = 1;
 						//UpdateLCDFlag = 1;
-						LCD_DisplayInfo();
+						//LCD_DisplayInfo();
 						if (!LM_DOWN_Pressed()){
 							VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
 							SystemState = WAIT_OBJECT_REMOVE;
@@ -263,8 +263,8 @@ void System_Running(){
 					}
 				}
 				else if (SEN2_GetEdgeStatus() == RISING_EDGE){	//rising edge
-					UpdateLCDFlag = 1;
-					LCD_DisplayInfo();
+					//UpdateLCDFlag = 1;
+					//LCD_DisplayInfo();
 					SEN2_ClearEdgeStatus();
 					if (!LM_DOWN_Pressed()){
 						VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
@@ -372,6 +372,7 @@ void System_Running(){
 					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
 					VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
 					SystemState = LEVER_MOVING_UP;
+					CloseWhenOpenFlag = 1;
 					break;
 				}
 				else if (ObjectDetectFlag == 1){
@@ -411,9 +412,8 @@ void System_Running(){
 							NumPressDownSwitch = 0;
 						}
 						else {
-							NumPressDownSwitch = 0;
+							NumPressDownSwitch = 1;
 						}
-
 						carhitDetectFlag = 0;
 						break;
 					}
@@ -593,34 +593,20 @@ void EEPROMFirstCheck(){
 	temp2 = 2;
 	do {
 		temp1 = EEPROM_ReadByte(EEPROM_CHECK_COUNTER_ADDRESS);
-		//UART_SendByte(temp1);
-		//UART_SendByte(' ');
 		DelayMs(10);
 		temp2 = EEPROM_ReadByte(EEPROM_CHECK_COUNTER_ADDRESS);
-		//UART_SendByte(temp2);
-		//UART_SendByte(13);
 		DelayMs(10);
 		retry ++;
 	} while ((temp1 != temp2) && (retry < 3));
 
 	if ((temp1 != 0x55) && (temp2 != 0x55)){
-		//UART_SendString("FIRST CHECK\r\n\t");
 		EEPROM_WriteByte(EEPROM_CHECK_COUNTER_ADDRESS,0x55);
 		DelayMs(10);
-		//temp1 = EEPROM_ReadByte(EEPROM_CHECK_COUNTER_ADDRESS);
-		//DelayMs(10);
-		//UART_SendByte(temp1);
 		EEPROM_WriteByte(EEPROM_PROTECT_INDEX_ADDRESS,EEPROM_CYCLE_COUNTER_ADDRESS);
 		DelayMs(10);
-		//temp1 = EEPROM_ReadByte(EEPROM_PROTECT_INDEX_ADDRESS);
-		//DelayMs(10);
-		//UART_SendByte(temp1 + '0');
 		ClearMeasureCurrent();
 		EEPROMWriteCycleCounter(EEPROM_CYCLE_COUNTER_ADDRESS,0);
 		DelayMs(10);
-		//temp1 = EEPROM_ReadByte(EEPROM_CHECK_COUNTER_ADDRESS);
-		//DelayMs(10);
-		//UART_SendByte(temp1);
 	}
 }
 void ClearCycleCounter(){
