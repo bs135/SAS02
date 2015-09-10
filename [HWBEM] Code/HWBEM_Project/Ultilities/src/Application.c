@@ -224,8 +224,7 @@ void System_Running(){
 	switch (SystemState){
 		case WAIT_BUTTON:
 			if (UP_GetEdgeStatus() == FALLING_EDGE){	//UP_SW falling edge
-				//UpdateLCDFlag = 1;
-				//LCD_DisplayInfo();
+				LCD_DisplayInfo();
 				UP_ClearEdgeStatus();
 				if (!LM_UP_Pressed()){
 					LcdPrintString(0,0,"UP");
@@ -250,7 +249,7 @@ void System_Running(){
 					if (NumPressDownSwitch >= 2){
 						NumPressDownSwitch = 1;
 						//UpdateLCDFlag = 1;
-						//LCD_DisplayInfo();
+						LCD_DisplayInfo();
 						if (!LM_DOWN_Pressed()){
 							VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
 							SystemState = WAIT_OBJECT_REMOVE;
@@ -264,7 +263,7 @@ void System_Running(){
 				}
 				else if (SEN2_GetEdgeStatus() == RISING_EDGE){	//rising edge
 					//UpdateLCDFlag = 1;
-					//LCD_DisplayInfo();
+					LCD_DisplayInfo();
 					SEN2_ClearEdgeStatus();
 					if (!LM_DOWN_Pressed()){
 						VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
@@ -928,6 +927,7 @@ void CalibartionProcess(){
 	DOWN_ClearEdgeStatus();
 	SEN2_ClearEdgeStatus();
 	SWITCH3_ClearEdgeStatus();
+	UpdateLCDFlag = 1;
 }
 
 void ResetCalibartionProcess(){
@@ -946,4 +946,5 @@ void ResetCalibartionProcess(){
 	SWITCH3_ClearEdgeStatus();
 	DelayMs(3000);
 	UpdateLCDFlag = 1;
+	LCD_DisplayInfo();
 }
