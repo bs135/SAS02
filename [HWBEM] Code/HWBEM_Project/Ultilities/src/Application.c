@@ -15,7 +15,7 @@
 #include "EEPROM.h"
 #include "LCD.h"
 
-#define CURRENT_VERSION		13
+#define CURRENT_VERSION		16
 
 #define DELTA_CURRENT_REFERENCE	600
 
@@ -79,11 +79,19 @@ void System_Init(){
 	else {
 		LcdPrintString(11,1,"sNO");
 	}
+
 	if ((DIPSW_GetValue() & (1<<DIPSW3_INDEX)) == (1<<DIPSW3_INDEX)){	// ON
 		LcdPrintString(8,1,"N-");
 	}
 	else {
 		LcdPrintString(8,1,"D1");
+	}
+
+	if (CarHitActive == 1){
+		LcdPrintString(15,1,"C");
+	}
+	else {
+		LcdPrintString(15,1," ");
 	}
 
 	ResetCurrentValue();
@@ -244,25 +252,19 @@ void System_Running(){
 			//if (DOWN_GetEdgeStatus() == RISING_EDGE){	//DW_SW rising edge
 			if (ObjectDetectFlag == 0){
 				if (DOWN_GetEdgeStatus() == RISING_EDGE){	//DW_SW rising edge
-					NumPressDownSwitch ++;
 					DOWN_ClearEdgeStatus();
-					if (NumPressDownSwitch >= 2){
-						NumPressDownSwitch = 1;
-						//UpdateLCDFlag = 1;
-						LCD_DisplayInfo();
-						if (!LM_DOWN_Pressed()){
-							VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
-							SystemState = WAIT_OBJECT_REMOVE;
-						}
+					LCD_DisplayInfo();
+					if (!LM_DOWN_Pressed()){
+						VTimerSet(VTimer_MotorDelayTimeout,CloseDelayTimer);
+						SystemState = WAIT_OBJECT_REMOVE;
 					}
 				}
-				if (DOWN_Button_Pressed()){
-					if (SEN2_GetEdgeStatus() == RISING_EDGE){	//rising edge
-						NumPressDownSwitch ++;
-					}
-				}
+				//if (DOWN_Button_Pressed()){
+				//	if (SEN2_GetEdgeStatus() == RISING_EDGE){	//rising edge
+				//		NumPressDownSwitch ++;
+				//	}
+				//}
 				else if (SEN2_GetEdgeStatus() == RISING_EDGE){	//rising edge
-					//UpdateLCDFlag = 1;
 					LCD_DisplayInfo();
 					SEN2_ClearEdgeStatus();
 					if (!LM_DOWN_Pressed()){
@@ -393,10 +395,6 @@ void System_Running(){
 			CalculateCurrentValue();
 			if (calculate_done == 1){
 				LCD_DisplayCurrent(GetCurrentValue());
-				//UART_SendNumber(CurrentReference);
-				//UART_SendByte(13);
-				//UART_SendNumber(GetCurrentValue());
-				//UART_SendByte(13);
 				calculate_done = 0;
 			}
 			if (CarHitActive == 1){
@@ -408,10 +406,10 @@ void System_Running(){
 						VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
 						SystemState = LEVER_MOVING_UP;
 						if (CarReverseFlag == 1){
-							NumPressDownSwitch = 0;
+							CloseWhenOpenFlag = 0;
 						}
 						else {
-							NumPressDownSwitch = 1;
+							CloseWhenOpenFlag = 1;
 						}
 						carhitDetectFlag = 0;
 						break;
@@ -871,6 +869,7 @@ void CalibartionProcess(){
 		CarHitActive = 1;
 		EEPROM_WriteByte(EEPROM_CARHIT_FLAG_ADDRESS,1);
 		DelayMs(10);
+
 		CurrentReference = CurrentReference / 5;
 		EEPROM_WriteByte(EEPROM_CURRENT_HIGH_ADDRESS,CurrentReference>>8);
 		DelayMs(10);
