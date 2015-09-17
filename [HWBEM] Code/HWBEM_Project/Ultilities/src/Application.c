@@ -15,7 +15,7 @@
 #include "EEPROM.h"
 #include "LCD.h"
 
-#define CURRENT_VERSION		16
+#define CURRENT_VERSION		17
 
 #define DELTA_CURRENT_REFERENCE	600
 
@@ -249,7 +249,6 @@ void System_Running(){
 					Motor_Stop();
 				}
 			}
-			//if (DOWN_GetEdgeStatus() == RISING_EDGE){	//DW_SW rising edge
 			if (ObjectDetectFlag == 0){
 				if (DOWN_GetEdgeStatus() == RISING_EDGE){	//DW_SW rising edge
 					DOWN_ClearEdgeStatus();
@@ -274,8 +273,30 @@ void System_Running(){
 				}
 			}
 			else {
-				DOWN_ClearEdgeStatus();
-				SEN2_ClearEdgeStatus();
+				if (DOWN_GetEdgeStatus() == RISING_EDGE){	//DW_SW rising edge
+					DOWN_ClearEdgeStatus();
+					LCD_DisplayInfo();
+					if (SensorReverseFlag == 1){
+						CloseWhenOpenFlag = 0;
+					}
+					else {
+						CloseWhenOpenFlag = 1;
+					}
+				}
+				else if (SEN2_GetEdgeStatus() == RISING_EDGE){	//rising edge
+					LCD_DisplayInfo();
+					SEN2_ClearEdgeStatus();
+					if (SensorReverseFlag == 1){
+						CloseWhenOpenFlag = 0;
+					}
+					else {
+						CloseWhenOpenFlag = 1;
+					}
+				}
+				else {
+					DOWN_ClearEdgeStatus();
+					SEN2_ClearEdgeStatus();
+				}
 			}
 			if (CloseWhenOpenFlag == 1){
 				SystemState = WAIT_OBJECT_REMOVE;
