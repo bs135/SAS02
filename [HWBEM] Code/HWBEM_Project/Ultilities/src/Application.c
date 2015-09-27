@@ -15,7 +15,7 @@
 #include "EEPROM.h"
 #include "LCD.h"
 
-#define CURRENT_VERSION		17
+#define CURRENT_VERSION		18
 
 #define DELTA_CURRENT_REFERENCE	600
 
@@ -110,7 +110,7 @@ uint8_t SEN2Flag = 0;
 uint8_t UpdateLCDFlag = 0;
 uint8_t CarReverseFlag = 0;
 uint8_t SensorReverseFlag = 0;
-
+uint8_t CatHitRetry = 0;
 void System_Running(){
 	if (SWITCH_Pressed()){
 		VTimerSet(VTimer_ResetCalibratioID,5000);
@@ -346,6 +346,7 @@ void System_Running(){
 			}
 			break;
 		case LEVER_WAIT_MOVE_DOWN:
+				CatHitRetry = 0;
 				if (UP_Button_Pressed()){	// Hủy lệnh đi xuống
 					SystemState = WAIT_BUTTON;
 					CloseWhenOpenFlag = 0;
@@ -421,19 +422,24 @@ void System_Running(){
 			if (CarHitActive == 1){
 				if (VTimerIsFired(VTimer_CarhitDelayTimeout)){
 					if (CarHitDetection()){
-						Motor_Forward();
-						FAN_TurnOn();
-						LcdPrintString(0,0,"UP");
-						VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-						SystemState = LEVER_MOVING_UP;
-						if (CarReverseFlag == 1){
-							CloseWhenOpenFlag = 0;
+						CatHitRetry ++;
+						VTimerSet(VTimer_CarhitDelayTimeout,100);
+						if ( CatHitRetry > 1){
+							Motor_Forward();
+							FAN_TurnOn();
+							LcdPrintString(0,0,"UP");
+							VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+							SystemState = LEVER_MOVING_UP;
+							if (CarReverseFlag == 1){
+								CloseWhenOpenFlag = 0;
+							}
+							else {
+								CloseWhenOpenFlag = 1;
+							}
+							//carhitDetectFlag = 0;
+							CatHitRetry = 0;
+							break;
 						}
-						else {
-							CloseWhenOpenFlag = 1;
-						}
-						carhitDetectFlag = 0;
-						break;
 					}
 				}
 				else {
@@ -478,7 +484,7 @@ void System_Running(){
 			LcdPrintString(0,0,"__");
 			ResetCurrentValue();
 			LCD_DisplayCurrent(GetCurrentValue());
-			carhitDetectFlag = 0;
+			//carhitDetectFlag = 0;
 			calculate_done = 0;
 			SystemState = WAIT_BUTTON;
 			UP_ClearEdgeStatus();
