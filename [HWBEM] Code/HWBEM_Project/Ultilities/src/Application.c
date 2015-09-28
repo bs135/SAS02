@@ -19,7 +19,7 @@
 
 #define DELTA_CURRENT_REFERENCE	600
 
-#define TIME_CHECK_CARHIT	300
+#define TIME_CHECK_CARHIT	500
 
 uint32_t MotorTotalTimer = 0;
 uint32_t CloseDelayTimer = 0;
@@ -424,7 +424,7 @@ void System_Running(){
 					if (CarHitDetection()){
 						CatHitRetry ++;
 						VTimerSet(VTimer_CarhitDelayTimeout,100);
-						if ( CatHitRetry > 1){
+						if ( CatHitRetry > 0){
 							Motor_Forward();
 							FAN_TurnOn();
 							LcdPrintString(0,0,"UP");
@@ -609,6 +609,8 @@ void LcdPrintVersion(uint32_t version){
 	LcdPutChar('0' + ((version/100) %10));
 	LcdPutChar('0' + ((version/10) %10));
 	LcdPutChar('0' + (version %10));
+	LcdPutChar('_' + (version %10));
+	LcdPutChar('4');
 }
 void EEPROMFirstCheck(){
 	uint8_t retry = 0;
