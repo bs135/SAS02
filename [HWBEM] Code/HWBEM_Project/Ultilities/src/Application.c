@@ -19,7 +19,7 @@
 
 #define DELTA_CURRENT_REFERENCE	600
 
-#define TIME_CHECK_CARHIT	500
+#define TIME_CHECK_CARHIT	400
 
 uint32_t MotorTotalTimer = 0;
 uint32_t CloseDelayTimer = 0;
@@ -610,7 +610,7 @@ void LcdPrintVersion(uint32_t version){
 	LcdPutChar('0' + ((version/10) %10));
 	LcdPutChar('0' + (version %10));
 	LcdPutChar('_' + (version %10));
-	LcdPutChar('4');
+	LcdPutChar('6');
 }
 void EEPROMFirstCheck(){
 	uint8_t retry = 0;
