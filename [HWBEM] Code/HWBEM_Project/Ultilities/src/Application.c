@@ -15,11 +15,12 @@
 #include "EEPROM.h"
 #include "LCD.h"
 
-#define CURRENT_VERSION		18
+#define CURRENT_VERSION		19
 
 #define DELTA_CURRENT_REFERENCE	600
 
-#define TIME_CHECK_CARHIT	500
+#define TIME_CHECK_CARHIT	300
+#define TIME_WAIT_MOVE_UP	500
 
 uint32_t MotorTotalTimer = 0;
 uint32_t CloseDelayTimer = 0;
@@ -378,33 +379,27 @@ void System_Running(){
 			}
 			if (!(LM_UP_Pressed())){		// Nếu rào chắn không phải đang ở tại UP_LM
 				if (UP_Button_Pressed()){	// Hủy lệnh đi xuống
+					Motor_Stop();
+					LcdPrintString(0,0,"__");
 					CloseWhenOpenFlag = 0;
-					Motor_Forward();		// Motor đi lên
-					FAN_TurnOn();
-					LcdPrintString(0,0,"UP");
-					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-					VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
-					SystemState = LEVER_MOVING_UP;
+					VTimerSet(VTimer_MotorDelayTimeout,TIME_WAIT_MOVE_UP);
+					SystemState = LEVER_WAIT_MOVE_UP;
 					break;
 				}
 				else if (DOWN_GetEdgeStatus() == FALLING_EDGE){	// Cạnh xuống của tín hiện
+					Motor_Stop();
+					LcdPrintString(0,0,"__");
 					DOWN_ClearEdgeStatus();
-					Motor_Forward();
-					FAN_TurnOn();
-					LcdPrintString(0,0,"UP");
-					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-					VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
-					SystemState = LEVER_MOVING_UP;
 					CloseWhenOpenFlag = 1;
+					VTimerSet(VTimer_MotorDelayTimeout,TIME_WAIT_MOVE_UP);
+					SystemState = LEVER_WAIT_MOVE_UP;
 					break;
 				}
 				else if (ObjectDetectFlag == 1){
-					Motor_Forward();
-					FAN_TurnOn();
-					LcdPrintString(0,0,"UP");
-					VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-					VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
-					SystemState = LEVER_MOVING_UP;
+					Motor_Stop();
+					LcdPrintString(0,0,"__");
+					VTimerSet(VTimer_MotorDelayTimeout,TIME_WAIT_MOVE_UP);
+					SystemState = LEVER_WAIT_MOVE_UP;
 					if (SensorReverseFlag == 1){
 						CloseWhenOpenFlag = 0;
 					}
@@ -425,18 +420,16 @@ void System_Running(){
 						CatHitRetry ++;
 						VTimerSet(VTimer_CarhitDelayTimeout,100);
 						if ( CatHitRetry > 0){
-							Motor_Forward();
-							FAN_TurnOn();
-							LcdPrintString(0,0,"UP");
-							VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
-							SystemState = LEVER_MOVING_UP;
+							Motor_Stop();
+							LcdPrintString(0,0,"__");
+							VTimerSet(VTimer_MotorDelayTimeout,TIME_WAIT_MOVE_UP);
+							SystemState = LEVER_WAIT_MOVE_UP;
 							if (CarReverseFlag == 1){
 								CloseWhenOpenFlag = 0;
 							}
 							else {
 								CloseWhenOpenFlag = 1;
 							}
-							//carhitDetectFlag = 0;
 							CatHitRetry = 0;
 							break;
 						}
@@ -450,6 +443,16 @@ void System_Running(){
 				CloseWhenOpenFlag = 0;
 				SystemState = REACH_DOWN_LIMIT;
 				break;
+			}
+			break;
+		case LEVER_WAIT_MOVE_UP:
+			if (VTimerIsFired(VTimer_MotorDelayTimeout)){
+				Motor_Forward();		// Motor đi lên
+				FAN_TurnOn();
+				LcdPrintString(0,0,"UP");
+				VTimerSet(VTimer_MotorTotalTimeout,MotorTotalTimer);
+				VTimerSet(VTimer_CarhitDelayTimeout,TIME_CHECK_CARHIT);
+				SystemState = LEVER_MOVING_UP;
 			}
 			break;
 		case REACH_UP_LIMIT:
@@ -609,8 +612,8 @@ void LcdPrintVersion(uint32_t version){
 	LcdPutChar('0' + ((version/100) %10));
 	LcdPutChar('0' + ((version/10) %10));
 	LcdPutChar('0' + (version %10));
-	LcdPutChar('_' + (version %10));
-	LcdPutChar('4');
+	LcdPutChar('_');
+	LcdPutChar('5');
 }
 void EEPROMFirstCheck(){
 	uint8_t retry = 0;

@@ -23,7 +23,7 @@
 #define INCREASE_COUNTER		8
 #define RESET_VALUE				9
 #define WAIT_OBJECT_REMOVE		10
-
+#define LEVER_WAIT_MOVE_UP		11
 
 #define SEN1_STATE_NO 			0
 #define SEN1_STATE_NC 			1

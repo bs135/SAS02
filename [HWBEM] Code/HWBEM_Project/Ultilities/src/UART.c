@@ -39,7 +39,7 @@ void UART_SendByte(uint8_t _data){
 	Chip_UART_SendBlocking(LPC_USART,&_data,1);
 }
 
-void UART_SendString(uint8_t *_data){
+void UART_SendString(uint8_t* _data){
 	while(*_data != '\t')
 	{
 		UART_SendByte(*_data);
