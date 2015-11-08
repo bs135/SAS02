@@ -15,7 +15,7 @@
 #include "EEPROM.h"
 #include "LCD.h"
 
-#define CURRENT_VERSION		19
+#define CURRENT_VERSION		20
 
 #define DELTA_CURRENT_REFERENCE	600
 
@@ -616,8 +616,8 @@ void LcdPrintVersion(uint32_t version){
 	LcdPutChar('0' + ((version/100) %10));
 	LcdPutChar('0' + ((version/10) %10));
 	LcdPutChar('0' + (version %10));
-	LcdPutChar('_');
-	LcdPutChar('5');
+//	LcdPutChar('_');
+//	LcdPutChar('5');
 }
 void EEPROMFirstCheck(){
 	uint8_t retry = 0;
