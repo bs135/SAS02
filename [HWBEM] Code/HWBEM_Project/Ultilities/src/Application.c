@@ -20,10 +20,12 @@
 #define DELTA_CURRENT_REFERENCE	600
 
 #define TIME_CHECK_CARHIT	300
+
 #define TIME_WAIT_MOVE_UP	500
 
 uint32_t MotorTotalTimer = 0;
 uint32_t CloseDelayTimer = 0;
+uint32_t TimeWaitMoveUp = 0;
 uint8_t VTimer_MotorTotalTimeout;
 uint8_t VTimer_MotorDelayTimeout;
 uint8_t VTimer_CarhitDelayTimeout;
@@ -195,12 +197,14 @@ void System_Running(){
 			LcdPrintString(5,1,"3S");
 		}
 		MotorTotalTimer = 3000;
+		TimeWaitMoveUp = 300;
 	}
 	else {
 		if (MotorTotalTimer != 6000) {
 			LcdPrintString(5,1,"6S");
 		}
 		MotorTotalTimer = 6000;
+		TimeWaitMoveUp = 500;
 	}
 
 	if ((DIPSW_GetValue() & (1<<DIPSW5_INDEX)) == (1<<DIPSW5_INDEX)){	// Car Reverse
@@ -382,7 +386,7 @@ void System_Running(){
 					Motor_Stop();
 					LcdPrintString(0,0,"__");
 					CloseWhenOpenFlag = 0;
-					VTimerSet(VTimer_MotorDelayTimeout,TIME_WAIT_MOVE_UP);
+					VTimerSet(VTimer_MotorDelayTimeout,TimeWaitMoveUp);
 					SystemState = LEVER_WAIT_MOVE_UP;
 					break;
 				}
@@ -391,14 +395,14 @@ void System_Running(){
 					LcdPrintString(0,0,"__");
 					DOWN_ClearEdgeStatus();
 					CloseWhenOpenFlag = 1;
-					VTimerSet(VTimer_MotorDelayTimeout,TIME_WAIT_MOVE_UP);
+					VTimerSet(VTimer_MotorDelayTimeout,TimeWaitMoveUp);
 					SystemState = LEVER_WAIT_MOVE_UP;
 					break;
 				}
 				else if (ObjectDetectFlag == 1){
 					Motor_Stop();
 					LcdPrintString(0,0,"__");
-					VTimerSet(VTimer_MotorDelayTimeout,TIME_WAIT_MOVE_UP);
+					VTimerSet(VTimer_MotorDelayTimeout,TimeWaitMoveUp);
 					SystemState = LEVER_WAIT_MOVE_UP;
 					if (SensorReverseFlag == 1){
 						CloseWhenOpenFlag = 0;
@@ -422,7 +426,7 @@ void System_Running(){
 						if ( CatHitRetry > 0){
 							Motor_Stop();
 							LcdPrintString(0,0,"__");
-							VTimerSet(VTimer_MotorDelayTimeout,TIME_WAIT_MOVE_UP);
+							VTimerSet(VTimer_MotorDelayTimeout,TimeWaitMoveUp);
 							SystemState = LEVER_WAIT_MOVE_UP;
 							if (CarReverseFlag == 1){
 								CloseWhenOpenFlag = 0;
