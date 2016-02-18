@@ -607,7 +607,7 @@ void LCD_DisplayCounter(uint32_t value){
 	LcdPutChar('0' + (value %10));
 }
 void LcdPrintVersion(uint32_t version){
-	LcdPrintString(0,0,"HWBEM v1.0");
+	LcdPrintString(0,0,"HWBEM 3");
 	LcdPrintString(0,1,"Fw:");
 	LCD_GotoXY(4,1);
 	LcdPutChar('0' + ((version/100000) %10));
