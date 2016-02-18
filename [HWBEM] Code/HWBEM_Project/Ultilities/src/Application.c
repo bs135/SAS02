@@ -70,10 +70,10 @@ void System_Init(){
 	LcdPrintString(0,0,"__");
 
 	if ((DIPSW_GetValue() & (1<<DIPSW4_INDEX)) == (1<<DIPSW4_INDEX)){
-		LcdPrintString(5,1,"3S");
+		LcdPrintString(5,1,"10S");
 	}
 	else {
-		LcdPrintString(5,1,"6S");
+		LcdPrintString(5,1,"6S ");
 	}
 
 	if ((DIPSW_GetValue() & (1<<DIPSW1_INDEX)) == (1<<DIPSW1_INDEX)){	// DIPSW1 = ON , SEN1 = N/C
@@ -193,18 +193,18 @@ void System_Running(){
 	}
 
 	if ((DIPSW_GetValue() & (1<<DIPSW4_INDEX)) == (1<<DIPSW4_INDEX)){	// N/C
-		if (MotorTotalTimer != 3000) {
-			LcdPrintString(5,1,"3S");
+		if (MotorTotalTimer != 10000) {
+			LcdPrintString(5,1,"10S");
 		}
-		MotorTotalTimer = 3000;
+		MotorTotalTimer = 10000;
 		TimeWaitMoveUp = 300;
 	}
 	else {
 		if (MotorTotalTimer != 6000) {
-			LcdPrintString(5,1,"6S");
+			LcdPrintString(5,1,"6S ");
 		}
 		MotorTotalTimer = 6000;
-		TimeWaitMoveUp = 500;
+		TimeWaitMoveUp = 300;
 	}
 
 	if ((DIPSW_GetValue() & (1<<DIPSW5_INDEX)) == (1<<DIPSW5_INDEX)){	// Car Reverse
@@ -550,11 +550,11 @@ void LCD_DisplayInfo(){
 			LcdPrintString(8,1,"D3");
 		}
 
-		if (MotorTotalTimer == 3000){\
-			LcdPrintString(5,1,"3S");
+		if (MotorTotalTimer == 10000){\
+			LcdPrintString(5,1,"10S");
 		}
 		else if (MotorTotalTimer == 6000){\
-			LcdPrintString(5,1,"6S");
+			LcdPrintString(5,1,"6S ");
 		}
 
 		if (CarReverseFlag == 1){
